@@ -1,12 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from ..core.config import settings
 
-DATABASE_URL = "postgresql://rubens:1234@localhost:5432/sabor_match"
-
-engine = create_engine(DATABASE_URL)
+engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Dependency para usar nas rotas
 def get_db():
     db = SessionLocal()
     try:

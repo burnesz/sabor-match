@@ -1,11 +1,11 @@
 services:
   db:
-    image: postgres:15
-    container_name: postgres
+    image: postgres:17
+    container_name: db
     environment:
-      POSTGRES_USER: rubens
+      POSTGRES_USER: prod
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: sabor_mactch
+      POSTGRES_DB: sabor_match
     ports:
       - "5432:5432"
     volumes:
@@ -15,11 +15,14 @@ services:
     build: ./backend
     container_name: backend
     environment:
-      DATABASE_URL: postgres://rubens:1234@db:5432/sabor_mactch
+      ENVIRONMENT: docker
     depends_on:
       - db
     ports:
       - "8000:8000"
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
 
   frontend:
     build: ./frontend
