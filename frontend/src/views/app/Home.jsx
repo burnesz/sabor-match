@@ -1,50 +1,54 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import React from "react";
+import Header from "../../components/Header";
+
+const receitasEstaticas = [
+  {
+    id: 1,
+    titulo: "Lasanha Bolonhesa Clássica",
+    tempo_preparo: 60,
+    nota_media: 4.8,
+    imagem_url: "https://images.unsplash.com/photo-1627993077671-8b2111d4d03d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  },
+  {
+    id: 2,
+    titulo: "Salmão Grelhado com Limão",
+    tempo_preparo: 25,
+    nota_media: 4.5,
+    imagem_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  },
+  {
+    id: 3,
+    titulo: "Brownie de Chocolate Intenso",
+    tempo_preparo: 45,
+    nota_media: 4.9,
+    imagem_url: "https://images.unsplash.com/photo-1598918239088-b223ff93b584?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  },
+];
+
+const recomendadasEstaticas = [
+  {
+    id: 4,
+    titulo: "Torta de Frango Cremosa",
+    tempo_preparo: 50,
+    nota_media: 4.2,
+    imagem_url: "https://images.unsplash.com/photo-1579270634676-e1751d3b2b8e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  },
+  {
+    id: 5,
+    titulo: "Sopa de Legumes da Vovó",
+    tempo_preparo: 30,
+    nota_media: 4.6,
+    imagem_url: "https://images.unsplash.com/photo-1555986161-fd2339343057?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  },
+];
 
 export default function Home() {
-  const { logout } = useAuth();
-  const [receitas, setReceitas] = useState([]);
-  const [recomendadas, setRecomendadas] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Simulação de fetch para receitas gerais
-        const res = await fetch("/api/receitas");
-        const data = await res.json();
-        setReceitas(data);
-
-        // Simulação de fetch para recomendações do usuário
-        const recRes = await fetch("/api/recomendacoes");
-        const recData = await recRes.json();
-        setRecomendadas(recData);
-
-      } catch (err) {
-        console.error("Erro ao carregar receitas:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  if (loading) return <p className="text-center mt-20">Carregando receitas...</p>;
+  const receitas = receitasEstaticas;
+  const recomendadas = recomendadasEstaticas;
 
   return (
     <div className="min-h-screen w-screen bg-purple-50">
-      {/* Header */}
-      <header className="flex justify-between items-center p-6 bg-purple-600 text-white">
-        <h1 className="text-2xl font-bold">Sabor Match</h1>
-        <button
-          onClick={logout}
-          className="bg-purple-800 px-4 py-2 rounded-xl hover:bg-purple-700 transition"
-        >
-          Sair
-        </button>
-      </header>
-
+      <Header />
       <main className="p-6 max-w-6xl mx-auto">
         {/* Receitas */}
         <section className="mb-10">

@@ -7,7 +7,7 @@ from ..models.user import User
 from ..db.session import get_db
 from sqlalchemy.orm import Session
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login", response_model=TokenResponse)
 def login(request: LoginRequest, db: Session = Depends(get_db)):

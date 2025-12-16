@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .api import auth
+from .api import auth, receitas
 from .core.dependencies import get_current_user
 from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 app.include_router(auth.router)
+app.include_router(receitas.router)
 
 # Configuração do CORS
 origins = [
