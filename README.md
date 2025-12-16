@@ -7,7 +7,7 @@ O **Sabor Match** é uma aplicação web *full-stack* desenvolvida para a partil
 ### Backend
 * **Linguagem:** Python 3.13
 * **Framework:** FastAPI
-* **Base de Dados:** PostgreSQL 17
+* **Banco de Dados:** PostgreSQL 17
 * **ORM:** SQLAlchemy
 * **Gestão de Migrações:** Alembic
 * **Autenticação:** JWT (JSON Web Tokens)
