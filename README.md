@@ -40,7 +40,7 @@ A forma mais simples de executar o projeto é através do Docker, que configura 
 
 1.  **Clonar o repositório:**
     ```bash
-    git clone <url-do-teu-repositorio>
+    git clone https://github.com/burnesz/sabor-match.git
     cd sabor-match
     ```
 
