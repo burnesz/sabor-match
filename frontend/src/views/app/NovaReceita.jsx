@@ -3,23 +3,25 @@ import Header from "../../components/Header";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudArrowUp, faUtensils, faClock, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { novaReceita } from "../../api/receitas";
+import { uploadImagemReceita } from "../../api/uploads";
 
 export default function NewRecipe() {
   const [imagemPreview, setImagemPreview] = useState(null);
-  const [formData, setFormData] = useState({
+  const [imagem, setImagem] = useState(null);
+  const [form, setForm] = useState({
     titulo: "",
     descricao: "",
     tempo: "",
     porcoes: "",
     ingredientes: "",
     categoria: "",
-    imagem_arquivo: null // Para guardar o arquivo real
+    imagem_path: ""
   });
 
   // 2. Função genérica para atualizar os campos de texto
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setForm((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -30,33 +32,46 @@ export default function NewRecipe() {
     const file = e.target.files[0];
     if (file) {
       setImagemPreview(URL.createObjectURL(file));
-      setFormData((prev) => ({ ...prev, imagem_arquivo: file }));
+      setImagem(file);
     }
   };
 
   // 3. Função de Envio (Submit)
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Evita o recarregamento da página
+    e.preventDefault(); 
     
-    // Aqui você enviaria para o seu backend (API)
-    console.log("Dados prontos para envio:", formData);
-
     try {
-      const data = await novaReceita(formData);
-      if (data) alert("Receita criada com sucesso!");
-      console.log("Resposta do servidor:", data);
+      const dataUpload = await uploadImagemReceita(imagem);
+      
+      const pathDaImagem = dataUpload.imagem_path
+
+      if (!pathDaImagem) {
+          throw new Error("O upload não retornou o caminho da imagem.");
+      }
+
+      setForm((prev) => ({ ...prev, imagem_path: pathDaImagem }));
+
+      const dadosFinais = {
+          ...form,
+          imagem_path: pathDaImagem
+      };
+
+      const dataReceita = await novaReceita(dadosFinais);
+      
+      if (dataReceita) alert("Receita criada com sucesso!");
+
     } catch (err) {
-    console.error("Erro ao criar nova receita:", err);
-  }
-};
+      console.error("Erro no processo:", err);
+    }
+  };
 
   const isFormValid = 
-    formData.titulo && 
-    formData.descricao && 
-    formData.tempo && 
-    formData.porcoes && 
-    formData.ingredientes && 
-    formData.categoria;
+    form.titulo && 
+    form.descricao && 
+    form.tempo && 
+    form.porcoes && 
+    form.ingredientes && 
+    form.categoria;
 
   return (
     <div className="min-h-screen w-screen bg-purple-50">
@@ -101,7 +116,7 @@ export default function NewRecipe() {
                 <input 
                   id="titulo"
                   name="titulo"
-                  value={formData.titulo}
+                  value={form.titulo}
                   onChange={handleChange}
                   required
                   type="text" 
@@ -116,7 +131,7 @@ export default function NewRecipe() {
                 <textarea 
                   id="descricao"
                   name="descricao"
-                  value={formData.descricao}
+                  value={form.descricao}
                   onChange={handleChange}
                   rows="3"
                   placeholder="Conte um pouco sobre essa receita..." 
@@ -130,7 +145,7 @@ export default function NewRecipe() {
                     <FontAwesomeIcon icon={faClock} className="text-gray-400" />
                     <input 
                       name="tempo"
-                      value={formData.tempo}
+                      value={form.tempo}
                       onChange={handleChange}
                       type="number"
                       min="1"
@@ -142,7 +157,7 @@ export default function NewRecipe() {
                     <FontAwesomeIcon icon={faUserGroup} className="text-gray-400" />
                     <input 
                       name="porcoes"
-                      value={formData.porcoes}
+                      value={form.porcoes}
                       onChange={handleChange}
                       type="number"
                       min="1"
@@ -158,7 +173,7 @@ export default function NewRecipe() {
                 <textarea 
                   id="ingredientes"
                   name="ingredientes"
-                  value={formData.ingredientes}
+                  value={form.ingredientes}
                   onChange={handleChange}
                   rows="5"
                   placeholder="Liste os ingredientes (um por linha)" 
@@ -173,7 +188,7 @@ export default function NewRecipe() {
                   <select 
                     id="categoria"
                     name="categoria"
-                    value={formData.categoria}
+                    value={form.categoria}
                     onChange={handleChange}
                     className="w-full p-4 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 appearance-none cursor-pointer"
                   >

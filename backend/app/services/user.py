@@ -5,8 +5,10 @@ from app.schemas.user import UserCreate
 
 def create_user(db: Session, user: UserCreate):
     db_user = User(
+        nome=user.nome,
         email=user.email,
         hashed_password=get_password_hash(user.password),
+        is_active=True
     )
     db.add(db_user)
     db.commit()

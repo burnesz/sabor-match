@@ -5,13 +5,14 @@ from ..schemas.auth import LoginRequest, TokenResponse
 from ..schemas.user import UserCreate, UserResponse
 from ..models.user import User
 from ..db.session import get_db
+from ..services.user import create_user, get_user_by_email
 from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login", response_model=TokenResponse)
 def login(request: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == request.email).first()
+    user = get_user_by_email(db=db, email=request.email)
     if not user or not verify_password(request.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -27,19 +28,11 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/register", response_model=UserResponse, status_code=201)
 def register(user: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.email == user.email).first()
+    existing_user = get_user_by_email(db=db, email=user.email)
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="E-mail já cadastrado"
         )
-    db_user = User(
-        nome=user.nome,
-        email=user.email,
-        hashed_password=get_password_hash(user.password),
-        is_active=True
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    db_user = create_user(db=db, user=user)
     return db_user
