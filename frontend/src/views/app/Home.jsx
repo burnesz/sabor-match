@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef } from 'react';
 import Header from "../../components/Header";
+import { notify } from '../../utils/notification.js';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const receitasEstaticas = [
   {
@@ -42,9 +44,30 @@ const recomendadasEstaticas = [
   },
 ];
 
+
+
 export default function Home() {
   const receitas = receitasEstaticas;
   const recomendadas = recomendadasEstaticas;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const jaNotificou = useRef(false);
+
+  useEffect(() => {
+    if (location.state && location.state.mensagem) {
+      if (jaNotificou.current) return;
+      
+      const { mensagem, tipo } = location.state;
+
+      if (tipo === 'error') notify.error(mensagem);
+      else if (tipo === 'warn') notify.warn(mensagem);
+      else notify.success(mensagem);
+
+      jaNotificou.current = true;
+
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   return (
     <div className="min-h-screen w-screen bg-purple-50">

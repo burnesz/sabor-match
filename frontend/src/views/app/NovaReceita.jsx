@@ -4,8 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudArrowUp, faUtensils, faClock, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { novaReceita } from "../../api/receitas";
 import { uploadImagemReceita } from "../../api/uploads";
+import { useNavigate } from "react-router-dom";
 
 export default function NewRecipe() {
+  const navigate = useNavigate();
   const [imagemPreview, setImagemPreview] = useState(null);
   const [imagem, setImagem] = useState(null);
   const [form, setForm] = useState({
@@ -46,7 +48,7 @@ export default function NewRecipe() {
       const pathDaImagem = dataUpload.imagem_path
 
       if (!pathDaImagem) {
-          throw new Error("O upload não retornou o caminho da imagem.");
+          throw new Error("O upload mau sucedido da imagem.");
       }
 
       setForm((prev) => ({ ...prev, imagem_path: pathDaImagem }));
@@ -58,10 +60,18 @@ export default function NewRecipe() {
 
       const dataReceita = await novaReceita(dadosFinais);
       
-      if (dataReceita) alert("Receita criada com sucesso!");
+      console.log(dataReceita);
+
+      if (!dataReceita) {
+        throw new Error("Erro ao criar a receita, tente novamente.");
+      }
+
+      navigate('/', { state: { tipo: "success", mensagem: "Receita criada com sucesso!" } 
+        })
 
     } catch (err) {
-      console.error("Erro no processo:", err);
+      navigate('/', { state: { tipo: "error", mensagem: err.message } 
+      })
     }
   };
 

@@ -19,7 +19,7 @@ export default function Header() {
           Sabor Match
         </h1>
         <button
-          onClick={() => navigate('/nova-receita')} // Poderia ser navigate('/nova-receita')
+          onClick={() => navigate('/nova-receita')}
           className="px-3 py-2 bg-purple-800 hover:bg-purple-700 rounded-xl font-semibold hover:-translate-y-1 transition"
           title="Adicionar nova receita"
         >

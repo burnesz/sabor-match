@@ -14,4 +14,3 @@ def upload_imagem_receita(imagem: UploadFile = File(...) ):
         raise HTTPException(status_code=500, detail="Erro ao salvar a imagem")
     
     return {"msg": "Imagem carregada com sucesso!", "imagem_path": imagem_path}
-

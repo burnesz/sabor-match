@@ -1,15 +1,17 @@
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import AuthWrapper from "./components/AuthWrapper.jsx";
-import Login from "./views/auth/Login.jsx";
-import Register from "./views/auth/Register.jsx";
+import Login from "./views/auth/Login";
+import Register from "./views/auth/Register";
 import Home from "./views/app/Home.jsx";
 import NovaReceita from "./views/app/NovaReceita.jsx";
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
     <AuthProvider>
+      <ToastContainer />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/registrar" element={<Register />} />

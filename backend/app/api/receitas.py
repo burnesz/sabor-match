@@ -7,7 +7,6 @@ from ..db.session import get_db
 from sqlalchemy.orm import Session
 from ..services.receita import create_receita
 from ..utils.file_upload import deletar_imagem
-import time
 
 router = APIRouter(prefix="/receitas", tags=["Receitas"])
 
