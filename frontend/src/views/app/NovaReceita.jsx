@@ -6,7 +6,7 @@ import { novaReceita } from "../../api/receitas";
 import { uploadImagemReceita } from "../../api/uploads";
 import { useNavigate } from "react-router-dom";
 
-export default function NewRecipe() {
+export default function NovaReceita() {
   const navigate = useNavigate();
   const [imagemPreview, setImagemPreview] = useState(null);
   const [imagem, setImagem] = useState(null);
@@ -60,7 +60,7 @@ export default function NewRecipe() {
 
       const dataReceita = await novaReceita(dadosFinais);
       
-      console.log(dataReceita);
+      console.log("Segue abaixo receita enviada ao servidor:\n", dataReceita);
 
       if (!dataReceita) {
         throw new Error("Erro ao criar a receita, tente novamente.");

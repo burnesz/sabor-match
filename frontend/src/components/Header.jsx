@@ -2,7 +2,7 @@ import React from "react";
 import { useAuth } from "../context/AuthContext"; // Ajuste o caminho conforme sua estrutura
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faRightFromBracket, faUser } from '@fortawesome/free-solid-svg-icons';
 
 export default function Header() {
   const { logout } = useAuth();
@@ -24,6 +24,13 @@ export default function Header() {
           title="Adicionar nova receita"
         >
           <FontAwesomeIcon icon={faPlus} />
+        </button>
+        <button
+          onClick={() => navigate('/minha-conta')}
+          className="px-3 py-2 bg-purple-800 hover:bg-purple-700 rounded-xl font-semibold hover:-translate-y-1 transition"
+          title="Minha Conta"
+        >
+          <FontAwesomeIcon icon={faUser} />
         </button>
       </div>
 

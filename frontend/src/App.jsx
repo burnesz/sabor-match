@@ -5,8 +5,10 @@ import Login from "./views/auth/Login";
 import Register from "./views/auth/Register";
 import Home from "./views/app/Home.jsx";
 import NovaReceita from "./views/app/NovaReceita.jsx";
+import MinhaConta from "./views/app/MinhaConta.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   return (
@@ -29,6 +31,14 @@ function App() {
           element={
             <AuthWrapper>
               <NovaReceita />
+            </AuthWrapper>
+          }
+        />
+        <Route
+          path="/minha-conta"
+          element={
+            <AuthWrapper>
+              <MinhaConta />
             </AuthWrapper>
           }
         />
