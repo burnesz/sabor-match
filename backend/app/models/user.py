@@ -1,6 +1,6 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
-
+from typing import List
 
 class User(Base):
     __tablename__ = "users"
@@ -10,3 +10,5 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
+
+    receitas: Mapped[List["Receita"]] = relationship(back_populates="user")  # type: ignore

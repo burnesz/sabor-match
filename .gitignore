@@ -32,3 +32,4 @@ dist-ssr
 start.sh
 backend/uploads/receitas/*
 !backend/uploads/receitas/.gitkeep
+.env
