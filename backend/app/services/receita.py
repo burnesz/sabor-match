@@ -3,8 +3,9 @@ from app.models.receita import Receita
 from app.schemas.receita import ReceitaCreate
 
 
-def create_receita(db: Session, receita: ReceitaCreate):
+def create_receita(db: Session, receita: ReceitaCreate, id_usuario: int):
     db_receita = Receita(
+        id_usuario=id_usuario,
         titulo=receita.titulo,
         descricao=receita.descricao,
         tempo=receita.tempo,

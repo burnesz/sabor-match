@@ -13,6 +13,6 @@ class Receita(Base):
     porcoes: Mapped[int] = mapped_column(nullable=False)
     ingredientes: Mapped[str] = mapped_column(nullable=False)
     categoria: Mapped[str] = mapped_column(nullable=False)
-    imagem_path: Mapped[str] = mapped_column(nullable=False)
+    imagem_path: Mapped[str] = mapped_column(nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="receitas") # type: ignore

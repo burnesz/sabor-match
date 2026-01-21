@@ -10,10 +10,11 @@ class ReceitaBase(BaseModel):
     imagem_path: str
 
 class ReceitaCreate(ReceitaBase):
-    pass
+    imagem_path: str = None
 
 class ReceitaResponse(ReceitaBase):
     id: int
+    id_usuario: int
 
     class Config:
         from_attributes = True

@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST_LOCAL: str
     POSTGRES_HOST_DOCKER: str
     POSTGRES_PORT: int = 5432
+    SECRET_KEY: str
 
     @property
     def POSTGRES_HOST(self) -> str:
