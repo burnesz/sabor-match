@@ -1,87 +1,28 @@
 import React, { useState } from "react";
 import Header from "../../components/Header";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCloudArrowUp, faUtensils, faClock, faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import { novaReceita } from "../../api/receitas";
-import { uploadImagemReceita } from "../../api/uploads";
-import { useNavigate } from "react-router-dom";
+import {
+  faCloudArrowUp, faClock, faUserGroup, faPlus, faTrash, faTags
+} from '@fortawesome/free-solid-svg-icons';
+import { useNovaReceita } from "../../hooks/app/useNovaReceita";
+
+const UNIDADES = ["un", "g", "kg", "ml", "l", "xic", "colher (sopa)", "colher (chá)"];
 
 export default function NovaReceita() {
-  const navigate = useNavigate();
-  const [imagemPreview, setImagemPreview] = useState(null);
-  const [imagem, setImagem] = useState(null);
-  const [form, setForm] = useState({
-    titulo: "",
-    descricao: "",
-    tempo: "",
-    porcoes: "",
-    ingredientes: "",
-    categoria: "",
-    imagem_path: ""
-  });
-
-  // 2. Função genérica para atualizar os campos de texto
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Função específica para a imagem
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagemPreview(URL.createObjectURL(file));
-      setImagem(file);
-    }
-  };
-
-  // 3. Função de Envio (Submit)
-  const handleSubmit = async (e) => {
-    e.preventDefault(); 
-    
-    try {
-      const dataUpload = await uploadImagemReceita(imagem);
-      
-      const pathDaImagem = dataUpload.imagem_path
-
-      if (!pathDaImagem) {
-          throw new Error("O upload mau sucedido da imagem.");
-      }
-
-      setForm((prev) => ({ ...prev, imagem_path: pathDaImagem }));
-
-      const dadosFinais = {
-          ...form,
-          imagem_path: pathDaImagem
-      };
-
-      const dataReceita = await novaReceita(dadosFinais);
-      
-      console.log("Segue abaixo receita enviada ao servidor:\n", dataReceita);
-
-      if (!dataReceita) {
-        throw new Error("Erro ao criar a receita, tente novamente.");
-      }
-
-      navigate('/', { state: { tipo: "success", mensagem: "Receita criada com sucesso!" } 
-        })
-
-    } catch (err) {
-      navigate('/', { state: { tipo: "error", mensagem: err.message } 
-      })
-    }
-  };
-
-  const isFormValid = 
-    form.titulo && 
-    form.descricao && 
-    form.tempo && 
-    form.porcoes && 
-    form.ingredientes && 
-    form.categoria;
+  const {
+    form,
+    categorias,
+    imagemPreview,
+    inputIngredienteAtual,
+    handleIngredienteChange,
+    handleAddClick,
+    handleChange,
+    handleImageChange,
+    removerIngrediente,
+    toggleCategoria,
+    handleSubmit,
+    isFormValid
+  } = useNovaReceita();
 
   return (
     <div className="min-h-screen w-screen bg-purple-50">
@@ -89,18 +30,17 @@ export default function NovaReceita() {
 
       <main className="p-4 md:p-8 max-w-5xl mx-auto">
         <div className="bg-white rounded-[32px] shadow-xl overflow-hidden p-6 md:p-10">
-          
+
           <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-10">
-            
+
+            {/* Esquerda: Imagem (sem alterações) */}
             <div className="w-full md:w-1/3 flex flex-col gap-4">
-              <label 
-                className={`
+              <label className={`
                   flex flex-col items-center justify-center w-full h-96 
                   bg-gray-100 rounded-[32px] cursor-pointer 
                   hover:bg-gray-200 transition-colors border-2 border-dashed border-gray-300
                   ${imagemPreview ? 'p-0 overflow-hidden border-none' : 'p-4'}
-                `}
-              >
+                `}>
                 {imagemPreview ? (
                   <img src={imagemPreview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
@@ -109,124 +49,133 @@ export default function NovaReceita() {
                     <p className="font-semibold text-sm">Escolha uma foto</p>
                   </div>
                 )}
-                <input 
-                  type="file" 
-                  className="hidden" 
-                  onChange={handleImageChange} 
-                  accept="image/*" 
-                />
+                <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
               </label>
             </div>
 
+            {/* Direita: Campos */}
             <div className="w-full md:w-2/3 flex flex-col gap-6">
-              
-              {/* Título */}
+
+              {/* Título e Descrição (Omitidos para brevidade, iguais ao anterior) */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="titulo" className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-2">Título da Receita</label>
-                <input 
-                  id="titulo"
-                  name="titulo"
-                  value={form.titulo}
-                  onChange={handleChange}
-                  required
-                  type="text" 
-                  placeholder="Ex: Bolo de Cenoura da Vovó" 
-                  className="w-full p-4 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition placeholder-gray-400 text-lg font-medium text-gray-700"
-                />
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-2">Título</label>
+                <input name="titulo" value={form.titulo} onChange={handleChange} required type="text" placeholder="Ex: Bolo de Cenoura" className="w-full p-4 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition placeholder-gray-400 text-lg font-medium text-gray-700" />
               </div>
 
-              {/* Descrição */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="descricao" className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-2">Descrição</label>
-                <textarea 
-                  id="descricao"
-                  name="descricao"
-                  value={form.descricao}
-                  onChange={handleChange}
-                  rows="3"
-                  placeholder="Conte um pouco sobre essa receita..." 
-                  className="w-full p-4 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition placeholder-gray-400 text-gray-700 resize-none"
-                ></textarea>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-2">Descrição</label>
+                <textarea name="descricao" value={form.descricao} onChange={handleChange} rows="3" placeholder="Sobre a receita..." className="w-full p-4 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition placeholder-gray-400 text-gray-700 resize-none"></textarea>
               </div>
 
-              {/* Grid Tempo e Porções */}
+              {/* Tempo e Porções (Omitidos para brevidade) */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-100 rounded-2xl p-4 flex items-center gap-3 focus-within:ring-2 focus-within:ring-purple-400 transition">
-                    <FontAwesomeIcon icon={faClock} className="text-gray-400" />
-                    <input 
-                      name="tempo"
-                      value={form.tempo}
-                      onChange={handleChange}
-                      type="number"
-                      min="1"
-                      placeholder="Minutos" 
-                      className="bg-transparent w-full focus:outline-none text-gray-700 font-medium"
-                    />
+                  <FontAwesomeIcon icon={faClock} className="text-gray-400" />
+                  <input name="tempo_minutos" value={form.tempo_minutos} onChange={handleChange} type="number" min="1" placeholder="Minutos" className="bg-transparent w-full focus:outline-none text-gray-700 font-medium" />
                 </div>
                 <div className="bg-gray-100 rounded-2xl p-4 flex items-center gap-3 focus-within:ring-2 focus-within:ring-purple-400 transition">
-                    <FontAwesomeIcon icon={faUserGroup} className="text-gray-400" />
-                    <input 
-                      name="porcoes"
-                      value={form.porcoes}
-                      onChange={handleChange}
-                      type="number"
-                      min="1"
-                      placeholder="Porções" 
-                      className="bg-transparent w-full focus:outline-none text-gray-700 font-medium" 
-                    />
+                  <FontAwesomeIcon icon={faUserGroup} className="text-gray-400" />
+                  <input name="porcoes" value={form.porcoes} onChange={handleChange} type="number" min="1" placeholder="Porções" className="bg-transparent w-full focus:outline-none text-gray-700 font-medium" />
                 </div>
               </div>
 
-              {/* Ingredientes */}
+              {/* Ingredientes (Igual ao anterior) */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="ingredientes" className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-2">Ingredientes</label>
-                <textarea 
-                  id="ingredientes"
-                  name="ingredientes"
-                  value={form.ingredientes}
-                  onChange={handleChange}
-                  rows="5"
-                  placeholder="Liste os ingredientes (um por linha)" 
-                  className="w-full p-4 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition placeholder-gray-400 text-gray-700"
-                ></textarea>
-              </div>
-
-               {/* Categoria */}
-               <div className="flex flex-col gap-2">
-                <label htmlFor="categoria" className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-2">Categoria</label>
-                <div className="relative">
-                  <select 
-                    id="categoria"
-                    name="categoria"
-                    value={form.categoria}
-                    onChange={handleChange}
-                    className="w-full p-4 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 appearance-none cursor-pointer"
-                  >
-                    <option value="">Escolha uma categoria</option>
-                    <option value="massas">Massas</option>
-                    <option value="doces">Doces & Sobremesas</option>
-                    <option value="fit">Saudável / Fit</option>
-                    <option value="lanches">Lanches Rápidos</option>
-                  </select>
-                  <FontAwesomeIcon icon={faUtensils} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-2">Ingredientes</label>
+                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      name="quantidade" // Importante: o nome tem que bater com o estado
+                      value={inputIngredienteAtual.quantidade}
+                      onChange={handleIngredienteChange} // Usa a função específica
+                      type="number"
+                      placeholder="Qtd"
+                      className="text-black w-full sm:w-20 p-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    />
+                    <select
+                      name="unidade" // Importante
+                      value={inputIngredienteAtual.unidade}
+                      onChange={handleIngredienteChange} // Usa a função específica
+                      className="w-full sm:w-28 p-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-gray-700 cursor-pointer"
+                    >
+                      {UNIDADES.map(u => <option key={u} value={u}>{u}</option>)}
+                    </select>
+                    <input
+                      name="nome" // Importante
+                      value={inputIngredienteAtual.nome}
+                      onChange={handleIngredienteChange} // Usa a função específica
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddClick())}
+                      type="text"
+                      placeholder="Nome do ingrediente"
+                      className="text-black flex-1 p-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    />
+                    <button type="button" onClick={handleAddClick} className="bg-purple-100 text-purple-600 p-3 rounded-xl hover:bg-purple-200 transition flex items-center justify-center min-w-[50px]"><FontAwesomeIcon icon={faPlus} /></button>
+                  </div>
+                  {form.ingredientes.length > 0 ? (
+                    <div className="flex flex-col gap-2 mt-2">
+                      {form.ingredientes.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+                          <div className="flex items-center gap-2 text-gray-700">
+                            <span className="font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md text-sm">{item.quantidade} {item.unidade}</span>
+                            <span>{item.nome}</span>
+                          </div>
+                          <button type="button" onClick={() => removerIngrediente(index)} className="text-gray-400 hover:text-red-500 transition px-2"><FontAwesomeIcon icon={faTrash} size="sm" /></button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (<p className="text-center text-red-400 text-sm py-2 italic">Adicione pelo menos um ingrediente</p>)}
                 </div>
               </div>
 
-              {/* Botão Submit */}
+              {/* --- CATEGORIAS (MÚLTIPLA SELEÇÃO) --- */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 ml-2">
+                  <FontAwesomeIcon icon={faTags} className="text-gray-400 text-xs" />
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Categorias</label>
+                </div>
+
+                <div className="flex flex-wrap gap-2 p-2">
+                  {categorias.map((cat) => {
+                    // Verifica se esta categoria está selecionada
+                    const isSelected = form.categoria.includes(cat.id);
+
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button" // Importante para não dar submit no form
+                        onClick={() => toggleCategoria(cat.id)}
+                        className={`
+                          px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 border
+                          ${isSelected
+                            ? "bg-purple-600 text-white border-purple-600 shadow-md transform scale-105"
+                            : "bg-gray-100 text-gray-600 border-gray-200 hover:bg-purple-100 hover:text-purple-600 hover:border-purple-200"
+                          }
+                        `}
+                      >
+                        {cat.nome}
+                      </button>
+                    );
+                  })}
+                </div>
+                {form.categoria.length === 0 && (
+                  <p className="text-xs text-red-400 italic ml-2 mt-1">* Selecione pelo menos uma categoria</p>
+                )}
+              </div>
+
               <div className="pt-4 flex justify-end">
                 <button
                   type="submit"
-                  className="bg-purple-600 text-white px-8 py-3 rounded-full font-bold hover:bg-purple-700 transition shadow-lg hover:shadow-purple-200 transform hover:-translate-y-1 disabled:opacity-50"
+                  className="bg-purple-600 text-white px-8 py-3 rounded-full font-bold hover:bg-purple-700 transition shadow-lg hover:shadow-purple-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!isFormValid}
                 >
-                  {!isFormValid ? 'Preencha todos campos' : 'Publicar Receita'}
+                  Publicar Receita
                 </button>
               </div>
 
             </div>
           </form>
         </div>
-      </main>
-    </div>
+      </main >
+    </div >
   );
 }

@@ -1,13 +1,12 @@
-from fastapi import APIRouter, Form, File, UploadFile, HTTPException
-from typing import Optional
-import shutil
-import os
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
+from app.core.dependencies import get_current_user
 from ..utils.file_upload import salvar_imagem
+
 
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
 
 @router.post("/nova-receita-imagem")
-def upload_imagem_receita(imagem: UploadFile = File(...) ):
+def upload_imagem_receita(imagem: UploadFile = File(...), current_user: str = Depends(get_current_user)):
     imagem_path = salvar_imagem(imagem)
     
     if not imagem_path:

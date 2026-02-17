@@ -16,3 +16,16 @@ export async function novaReceita(form) {
   }
   return response.json();
 }
+
+export async function listaCategorias() {
+  const response = await fetch(`${API_URL}/listar_categorias`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    }
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao listar categorias, contate o suporte");
+  }
+  return response.json();
+}

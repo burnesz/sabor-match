@@ -1,20 +1,26 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from typing import List, Optional
+
+class IngredienteSchema(BaseModel):
+    nome: str
+    quantidade: float
+    unidade: str
 
 class ReceitaBase(BaseModel):
     titulo: str
     descricao: str
-    tempo: int
+    tempo_minutos: int
     porcoes: int
-    ingredientes: str
-    categoria: str
-    imagem_path: str
+    ingredientes: List[IngredienteSchema]
+    categoria: List[int]
+    imagem_path: Optional[str] = None
 
 class ReceitaCreate(ReceitaBase):
-    imagem_path: str = None
+    pass
 
 class ReceitaResponse(ReceitaBase):
     id: int
-    id_usuario: int
+    usuario_id: int
 
     class Config:
         from_attributes = True

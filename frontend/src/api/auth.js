@@ -7,7 +7,10 @@ export async function login(email, password) {
     body: JSON.stringify({ email, password }),
   });
   if (!response.ok) {
-    throw new Error("Login inválido");
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.detail || "E-mail ou senha inválidos";
+    
+    throw new Error(errorMessage);
   }
   return response.json();
 }
@@ -19,7 +22,10 @@ export async function register(nome, email, password) {
     body: JSON.stringify({ nome, email, password }),
   });
   if (!response.ok) {
-    throw new Error("Erro ao cadastrar usuário");
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.detail || "Falha ao realizar cadastro";
+    
+    throw new Error(errorMessage);
   }
   return response.json();
 }
