@@ -22,8 +22,3 @@ app.add_middleware(
     allow_methods=["*"],       # permite POST, GET, OPTIONS etc.
     allow_headers=["*"],       # permite todos os headers
 )
-
-
-@app.get("/private")
-def private_route(email: str = Depends(get_current_user)):
-    return {"msg": f"Olá, {email}!"}

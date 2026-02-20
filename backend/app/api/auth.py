@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from datetime import timedelta
+from fastapi.security import OAuth2PasswordRequestForm
+from ..core.dependencies import get_current_user
 from ..core.security import create_access_token, verify_password, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES
 from ..schemas.auth import LoginRequest, TokenResponse
 from ..schemas.user import UserCreate, UserResponse
@@ -26,6 +28,16 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 
     return {"access_token": access_token, "token_type": "bearer"}
 
+# ROTA 2: Login do Swagger UI
+@router.post("/token", response_model=TokenResponse, include_in_schema=False) # Esconde do Swagger visualmente
+def login_swagger(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = get_user_by_email(db=db, email=form_data.username)
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @router.post("/register", response_model=UserResponse, status_code=201)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = get_user_by_email(db=db, email=user.email)
@@ -36,3 +48,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         )
     db_user = create_user(db=db, user=user)
     return db_user
+
+@router.get("/validate-token", response_model=UserResponse)
+def validate_token(current_user: User = Depends(get_current_user)):
+    return current_user
