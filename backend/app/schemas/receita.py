@@ -11,12 +11,11 @@ class ReceitaBase(BaseModel):
     descricao: str
     tempo_minutos: int
     porcoes: int
-    ingredientes: List[IngredienteSchema]
-    categoria: List[int]
     imagem_path: Optional[str] = None
 
 class ReceitaCreate(ReceitaBase):
-    pass
+    ingredientes: List[IngredienteSchema]
+    categoria: List[int]
 
 class ReceitaResponse(ReceitaBase):
     id: int

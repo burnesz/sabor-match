@@ -3,12 +3,15 @@ from .api import auth, receitas, uploads
 from .core.dependencies import get_current_user
 from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(receitas.router)
 app.include_router(uploads.router)
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Configuração do CORS
 origins = [

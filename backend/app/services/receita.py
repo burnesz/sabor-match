@@ -47,18 +47,20 @@ def create_receita(db: Session, receita: ReceitaCreate, usuario_id: int):
         db.commit()
         db.refresh(db_receita)
         
-        return {
-        "id": db_receita.id,
-        "usuario_id": db_receita.usuario_id,
-        "titulo": db_receita.titulo,
-        "descricao": db_receita.descricao,
-        "tempo_minutos": db_receita.tempo_minutos,
-        "porcoes": db_receita.porcoes,
-        "ingredientes": receita.ingredientes,
-        "categoria": receita.categoria,
-        "imagem_path": db_receita.imagem_path
-    }
+        return db_receita
 
     except Exception as e:
         db.rollback()
         raise e
+    
+def get_receitas_recentes_usuario(db: Session, usuario_id: int, limite: int = 10):
+    """
+    Busca as receitas mais recentes de um usuário para exibir em destaques/carrossel.
+    """
+    return (
+        db.query(Receita)
+        .filter(Receita.usuario_id == usuario_id)
+        .order_by(Receita.id.desc()) # Garante que as últimas criadas apareçam primeiro
+        .limit(limite)
+        .all()
+    )
