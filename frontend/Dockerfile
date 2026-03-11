@@ -1,8 +1,8 @@
 # build stage
-FROM node:20-alpine3.20 AS build
+FROM alpine:3.22
 
 # Update package manager and dependencies to reduce vulnerabilities
-RUN apk update && apk upgrade --no-cache
+RUN apk update && apk upgrade --no-cache && apk add --no-cache dumb-init
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
