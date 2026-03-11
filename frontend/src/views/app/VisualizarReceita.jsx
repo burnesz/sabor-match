@@ -84,7 +84,7 @@ export default function VisualizarReceita() {
               />
             )}
 
-            <div className="flex flex-col justify-between">
+            <div className="flex flex-col">
               <div className="relative">
                 <h1 className="text-4xl font-extrabold text-purple-700 mb-4 leading-tight">{receita.titulo}</h1>
                 <button
@@ -104,7 +104,11 @@ export default function VisualizarReceita() {
                   <span className="text-purple-500 font-semibold">·</span>
                   <span className="text-purple-500 font-semibold">{receita.porcoes} porções</span>
                 </div>
-                <p className="text-gray-600 mb-6 whitespace-pre-line">{receita.descricao}</p>
+                <h2 className="text-2xl font-semibold text-purple-700 mb-4">Modo de Preparo</h2>
+
+                <div className="max-h-80 overflow-y-auto mb-6 pr-2 border border-purple-100 rounded-lg p-4 bg-gray-50">
+                  <p className="text-gray-600 whitespace-pre-line">{receita.descricao}</p>
+                </div>
               </div>
             </div>
           </div>

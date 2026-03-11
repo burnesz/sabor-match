@@ -34,3 +34,13 @@ class ReceitaCarrossel(BaseModel):
 
     class Config:
         from_attributes = True
+
+class BuscaPaginada(BaseModel):
+    items: List[ReceitaCarrossel]
+    total_itens: int
+    total_paginas: int
+    pagina_atual: int
+    tamanho_pagina: int
+
+    class Config:
+        from_attributes = True

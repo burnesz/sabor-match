@@ -141,3 +141,20 @@ export async function verificarFavorita(id) {
   }
   return response.json();
 }
+
+export async function buscarReceitas(termo, pagina = 1, tamanho = 10) {
+  const params = new URLSearchParams({
+    q: termo,
+    pagina: pagina,
+    tamanho_pagina: tamanho
+  });
+
+  const response = await fetch(`${API_URL}/buscar/resultado?${params}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao buscar receitas");
+  }
+  return response.json();
+}

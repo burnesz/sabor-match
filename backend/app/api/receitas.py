@@ -5,7 +5,7 @@ from app.models.categoria import Categoria
 from app.models.receita import Receita
 from app.models.associacoes import ReceitaFavorita
 from app.models.user import User
-from ..schemas.receita import ReceitaCreate, ReceitaResponse, ReceitaCarrossel
+from ..schemas.receita import ReceitaCreate, ReceitaResponse, ReceitaCarrossel, BuscaPaginada
 from ..db.session import get_db
 from sqlalchemy.orm import Session
 from ..services.receita import (
@@ -13,7 +13,8 @@ from ..services.receita import (
     get_receitas_recentes_usuario,
     get_receitas_favoritas_usuario,
     get_receitas_recentes_globais,
-    get_recomendacoes_por_categoria_usuario
+    get_recomendacoes_por_categoria_usuario,
+    buscar_receitas
 )
 from ..utils.file_upload import deletar_imagem
 from ..core.dependencies import get_current_user
@@ -137,3 +138,31 @@ def verificar_favorita(receita_id: int, db: Session = Depends(get_db), current_u
         ReceitaFavorita.receita_id == receita_id
     ).first()
     return {"favoritada": favorita is not None}
+
+@router.get("/buscar/resultado", response_model=BuscaPaginada, status_code=200)
+def buscar_receitas_endpoint(
+    q: str,
+    pagina: int = 1,
+    tamanho_pagina: int = 10,
+    db: Session = Depends(get_db)
+):
+    if not q or len(q.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Termo de busca deve ter pelo menos 2 caracteres")
+
+    if pagina < 1:
+        pagina = 1
+
+    if tamanho_pagina < 1 or tamanho_pagina > 100:
+        tamanho_pagina = 10
+
+    db_receitas, total_itens = buscar_receitas(db=db, termo=q, pagina=pagina, tamanho_pagina=tamanho_pagina)
+
+    total_paginas = (total_itens + tamanho_pagina - 1) // tamanho_pagina
+
+    return BuscaPaginada(
+        items=db_receitas,
+        total_itens=total_itens,
+        total_paginas=total_paginas,
+        pagina_atual=pagina,
+        tamanho_pagina=tamanho_pagina
+    )

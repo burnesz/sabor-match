@@ -7,6 +7,7 @@ import Home from "./views/app/Home.jsx";
 import NovaReceita from "./views/app/NovaReceita.jsx";
 import MinhaConta from "./views/app/MinhaConta.jsx";
 import VisualizarReceita from "./views/app/VisualizarReceita.jsx";
+import ResultadosBusca from "./views/app/ResultadosBusca.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -48,6 +49,14 @@ function App() {
           element={
             <AuthWrapper>
               <VisualizarReceita />
+            </AuthWrapper>
+          }
+        />
+        <Route
+          path="/buscar"
+          element={
+            <AuthWrapper>
+              <ResultadosBusca />
             </AuthWrapper>
           }
         />
