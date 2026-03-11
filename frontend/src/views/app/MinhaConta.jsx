@@ -9,7 +9,8 @@ import { Link } from 'react-router-dom';
 import { updateUser } from "../../api/auth.js";
 
 export default function MinhaConta() {
-  const carrosselRef = useRef(null);
+  const carrosselMinhasReceitasRef = useRef(null);
+  const carrosselReceitasSalvasRef = useRef(null);
   const [minhasReceitas, setMinhasReceitas] = useState([]);
   const [receitasFavoritas, setReceitasFavoritas] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -101,15 +102,15 @@ export default function MinhaConta() {
     }
   };
 
-  const rolarEsquerda = () => {
-    if (carrosselRef.current) {
-      carrosselRef.current.scrollBy({ left: -300, behavior: "smooth" }); 
+  const rolarEsquerda = (ref) => {
+    if (ref.current) {
+      ref.current.scrollBy({ left: -300, behavior: "smooth" }); 
     }
   };
 
-  const rolarDireita = () => {
-    if (carrosselRef.current) {
-      carrosselRef.current.scrollBy({ left: 300, behavior: "smooth" });
+  const rolarDireita = (ref) => {
+    if (ref.current) {
+      ref.current.scrollBy({ left: 300, behavior: "smooth" });
     }
   };
 
@@ -184,7 +185,7 @@ export default function MinhaConta() {
             {!carregando && !erro && minhasReceitas.length > 0 && (
               <div className="relative w-full group">
                 <button 
-                  onClick={rolarEsquerda}
+                  onClick={() => rolarEsquerda(carrosselMinhasReceitasRef)}
                   className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md text-purple-700 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
                   aria-label="Rolar para a esquerda"
                 >
@@ -192,7 +193,7 @@ export default function MinhaConta() {
                 </button>
 
                 <div 
-                  ref={carrosselRef}
+                  ref={carrosselMinhasReceitasRef}
                   className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
                   {/* Corrigido aqui: de receitas.map para minhasReceitas.map */}
@@ -210,7 +211,7 @@ export default function MinhaConta() {
                 </div>
 
                 <button 
-                  onClick={rolarDireita}
+                  onClick={() => rolarDireita(carrosselMinhasReceitasRef)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md text-purple-700 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
                   aria-label="Rolar para a direita"
                 >
@@ -231,18 +232,39 @@ export default function MinhaConta() {
             )}
 
             {!carregando && !erro && receitasFavoritas.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
-                {receitasFavoritas.map((r) => (
-                  <Link key={r.id} to={`/receita/${r.id}`} className="bg-white rounded-2xl shadow p-4 border border-purple-100">
-                    <img
-                      src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
-                      alt={r.titulo}
-                      className="rounded-xl mb-2 w-full h-40 object-cover"
-                    />
-                    <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
-                    <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
-                  </Link>
-                ))}
+              <div className="relative w-full group">
+                <button 
+                  onClick={() => rolarEsquerda(carrosselReceitasSalvasRef)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md text-purple-700 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
+                  aria-label="Rolar para a esquerda"
+                >
+                  ◀ 
+                </button>
+
+                <div 
+                  ref={carrosselReceitasSalvasRef}
+                  className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  {receitasFavoritas.map((r) => (
+                    <Link key={r.id} to={`/receita/${r.id}`} className="bg-white rounded-2xl shadow p-4 flex-none w-64 sm:w-72 snap-start border border-purple-100">
+                      <img
+                        src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
+                        alt={r.titulo}
+                        className="rounded-xl mb-2 w-full h-40 object-cover"
+                      />
+                      <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
+                      <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
+                    </Link>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => rolarDireita(carrosselReceitasSalvasRef)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md text-purple-700 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
+                  aria-label="Rolar para a direita"
+                >
+                  ▶
+                </button>
               </div>
             )}
           </section>
