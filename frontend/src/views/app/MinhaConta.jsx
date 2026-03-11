@@ -16,11 +16,29 @@ export default function MinhaConta() {
   const [erro, setErro] = useState(null);
   const { user, setUser } = useAuth();
   const fileInputRef = useRef(null);
-  const [fotoPerfil, setFotoPerfil] = useState(`http://127.0.0.1:8000/uploads/perfil/perfil_${user.id}.png`);
+  const [fotoPerfil, setFotoPerfil] = useState('');
   const [fazendoUpload, setFazendoUpload] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ nome: user.nome, email: user.email });
+  const [formData, setFormData] = useState({ nome: '', email: '' });
   const [updating, setUpdating] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setFotoPerfil(`http://127.0.0.1:8000/uploads/perfil/perfil_${user.id}.png`);
+      setFormData({ nome: user.nome, email: user.email });
+    }
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
+        <Header />
+        <div className="max-w-6xl mx-auto p-6">
+          <p className="text-gray-500">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const buscarReceitas = async () => {
