@@ -21,7 +21,7 @@ class ReceitaResponse(ReceitaBase):
     id: int
     usuario_id: int
     ingredientes: List[IngredienteSchema]
-    categorias: List[int]  # or more detailed if needed
+    categorias: List[str]  # nomes das categorias
 
     class Config:
         from_attributes = True

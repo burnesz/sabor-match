@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from "../../components/Header";
-import { obterReceita } from "../../api/receitas.js";
+import { obterReceita, verificarFavorita, favoritarReceita, desfavoritarReceita } from "../../api/receitas.js";
 
 export default function VisualizarReceita() {
   const { id } = useParams();
   const [receita, setReceita] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriting, setFavoriting] = useState(false);
 
   useEffect(() => {
     const buscarReceita = async () => {
       try {
-        const data = await obterReceita(id);
-        setReceita(data);
+        const [dataReceita, dataFavorita] = await Promise.all([
+          obterReceita(id),
+          verificarFavorita(id)
+        ]);
+        setReceita(dataReceita);
+        setIsFavorited(dataFavorita.favoritada);
       } catch (error) {
         console.error("Erro na requisição:", error);
         setErro("Não foi possível carregar a receita.");
@@ -24,6 +30,23 @@ export default function VisualizarReceita() {
 
     buscarReceita();
   }, [id]);
+
+  const toggleFavorite = async () => {
+    try {
+      setFavoriting(true);
+      if (isFavorited) {
+        await desfavoritarReceita(id);
+        setIsFavorited(false);
+      } else {
+        await favoritarReceita(id);
+        setIsFavorited(true);
+      }
+    } catch (error) {
+      console.error("Erro ao alterar favorito:", error);
+    } finally {
+      setFavoriting(false);
+    }
+  };
 
   if (carregando) {
     return (
@@ -60,6 +83,17 @@ export default function VisualizarReceita() {
             />
           )}
           <h1 className="text-3xl font-bold text-purple-700 mb-4">{receita.titulo}</h1>
+          <button
+            onClick={toggleFavorite}
+            disabled={favoriting}
+            className={`mb-4 px-4 py-2 rounded-lg font-medium transition ${
+              isFavorited
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            } disabled:opacity-50`}
+          >
+            {favoriting ? '...' : (isFavorited ? '❤️ Favoritada' : '🤍 Favoritar')}
+          </button>
           <p className="text-gray-600 mb-6">{receita.descricao}</p>
           <div className="flex flex-wrap gap-4 mb-6">
             <div className="bg-purple-100 rounded-lg px-4 py-2">
@@ -83,9 +117,9 @@ export default function VisualizarReceita() {
             <div>
               <h2 className="text-xl font-semibold text-purple-700 mb-4">Categorias</h2>
               <div className="flex flex-wrap gap-2">
-                {receita.categorias.map((catId) => (
-                  <span key={catId} className="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm">
-                    Categoria {catId}
+                {receita.categorias.map((nome) => (
+                  <span key={nome} className="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm">
+                    {nome}
                   </span>
                 ))}
               </div>
