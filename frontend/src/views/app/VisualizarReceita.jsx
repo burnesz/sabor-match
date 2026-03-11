@@ -74,51 +74,58 @@ export default function VisualizarReceita() {
     <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
       <Header />
       <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-white rounded-2xl shadow p-6">
-          {receita.imagem_path && (
-            <img
-              src={`http://localhost:8000/${receita.imagem_path}`}
-              alt={receita.titulo}
-              className="w-full h-64 object-cover rounded-xl mb-6"
-            />
-          )}
-          <h1 className="text-3xl font-bold text-purple-700 mb-4">{receita.titulo}</h1>
-          <button
-            onClick={toggleFavorite}
-            disabled={favoriting}
-            className={`mb-4 px-4 py-2 rounded-lg font-medium transition ${
-              isFavorited
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            } disabled:opacity-50`}
-          >
-            {favoriting ? '...' : (isFavorited ? '❤️ Favoritada' : '🤍 Favoritar')}
-          </button>
-          <p className="text-gray-600 mb-6">{receita.descricao}</p>
-          <div className="flex flex-wrap gap-4 mb-6">
-            <div className="bg-purple-100 rounded-lg px-4 py-2">
-              <span className="font-semibold text-purple-700">Tempo:</span> {receita.tempo_minutos} min
-            </div>
-            <div className="bg-purple-100 rounded-lg px-4 py-2">
-              <span className="font-semibold text-purple-700">Porções:</span> {receita.porcoes}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="md:grid md:grid-cols-2 md:gap-8">
+            {receita.imagem_path && (
+              <img
+                src={`http://localhost:8000/${receita.imagem_path}`}
+                alt={receita.titulo}
+                className="w-full h-64 md:h-auto object-cover rounded-xl mb-6 md:mb-0"
+              />
+            )}
+
+            <div className="flex flex-col justify-between">
+              <div className="relative">
+                <h1 className="text-4xl font-extrabold text-purple-700 mb-4 leading-tight">{receita.titulo}</h1>
+                <button
+                  onClick={toggleFavorite}
+                  disabled={favoriting}
+                  className={`absolute -top-2 -right-2 p-2 rounded-full transition shadow-lg ${
+                    isFavorited
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  } disabled:opacity-50`}
+                  title={isFavorited ? 'Desfavoritar' : 'Favoritar'}
+                >
+                  {favoriting ? '...' : (isFavorited ? '❤️' : '🤍')}
+                </button>
+                <div className="flex items-center mb-4 gap-3 flex-wrap">
+                  <span className="text-purple-500 font-semibold">{receita.tempo_minutos} min</span>
+                  <span className="text-purple-500 font-semibold">·</span>
+                  <span className="text-purple-500 font-semibold">{receita.porcoes} porções</span>
+                </div>
+                <p className="text-gray-600 mb-6 whitespace-pre-line">{receita.descricao}</p>
+              </div>
             </div>
           </div>
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-purple-700 mb-4">Ingredientes</h2>
-            <ul className="list-disc list-inside space-y-2">
+
+          <div className="mt-10">
+            <h2 className="text-2xl font-semibold text-purple-700 mb-4">Ingredientes</h2>
+            <ul className="list-disc list-inside space-y-2 pl-4">
               {receita.ingredientes.map((ing, index) => (
                 <li key={index} className="text-gray-700">
-                  {ing.quantidade} {ing.unidade} de {ing.nome}
+                  {ing.quantidade} {ing.unidade} de <span className="font-medium">{ing.nome}</span>
                 </li>
               ))}
             </ul>
           </div>
+
           {receita.categorias.length > 0 && (
-            <div>
-              <h2 className="text-xl font-semibold text-purple-700 mb-4">Categorias</h2>
+            <div className="mt-10">
+              <h2 className="text-2xl font-semibold text-purple-700 mb-4">Categorias</h2>
               <div className="flex flex-wrap gap-2">
                 {receita.categorias.map((nome) => (
-                  <span key={nome} className="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm">
+                  <span key={nome} className="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
                     {nome}
                   </span>
                 ))}
