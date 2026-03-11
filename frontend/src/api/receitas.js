@@ -44,3 +44,33 @@ export async function listaReceitasCarrossel() {
   }
   return response.json();
 }
+
+export async function obterReceita(id) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao obter receita");
+  }
+  return response.json();
+}
+
+export async function listarReceitasFavoritas() {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_URL}/receitas-favoritas`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao listar receitas favoritas");
+  }
+  return response.json();
+}

@@ -16,3 +16,5 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
 
     receitas: Mapped[List["Receita"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+
+    favoritas: Mapped[List["Receita"]] = relationship(secondary="receita_favoritas", back_populates="favoritados")

@@ -2,43 +2,31 @@ import React, { useEffect, useRef, useState } from 'react'; // Adicionado o useS
 import Header from "../../components/Header";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
-import { listaReceitasCarrossel } from "../../api/receitas.js";
+import { listaReceitasCarrossel, listarReceitasFavoritas } from "../../api/receitas.js";
 import { useAuth } from "../../context/AuthContext";
 import { uploadImagemPerfil } from "../../api/uploads.js";
-
-const recomendadasEstaticas = [
-  {
-    id: 4,
-    titulo: "Torta de Frango Cremosa",
-    tempo_preparo: 50,
-    nota_media: 4.2,
-    imagem_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  },
-  {
-    id: 5,
-    titulo: "Sopa de Legumes da Vovó",
-    tempo_preparo: 30,
-    nota_media: 4.6,
-    imagem_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  },
-];
+import { Link } from 'react-router-dom';
 
 export default function MinhaConta() {
-  const recomendadas = recomendadasEstaticas;
   const carrosselRef = useRef(null);
   const [minhasReceitas, setMinhasReceitas] = useState([]);
+  const [receitasFavoritas, setReceitasFavoritas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const { user } = useAuth();
   const fileInputRef = useRef(null);
-  const [fotoPerfil, setFotoPerfil] = useState(`http://localhost:8000/uploads/perfil/perfil_${user.id}.png`);
+  const [fotoPerfil, setFotoPerfil] = useState(`http://127.0.0.1:8000/uploads/perfil/perfil_${user.id}.png`);
   const [fazendoUpload, setFazendoUpload] = useState(false);
 
   useEffect(() => {
-    const buscarReceitasCarrossel = async () => {
+    const buscarReceitas = async () => {
       try {
-        const data = await listaReceitasCarrossel();
-        setMinhasReceitas(data);
+        const [dataMinhas, dataFavoritas] = await Promise.all([
+          listaReceitasCarrossel(),
+          listarReceitasFavoritas()
+        ]);
+        setMinhasReceitas(dataMinhas);
+        setReceitasFavoritas(dataFavoritas);
       } catch (error) {
         console.error("Erro na requisição:", error);
         setErro("Não foi possível carregar suas receitas.");
@@ -47,7 +35,7 @@ export default function MinhaConta() {
       }
     };
 
-    buscarReceitasCarrossel();
+    buscarReceitas();
   }, []);
 
   const dispararEscolhaDeArquivo = () => {
@@ -170,10 +158,7 @@ export default function MinhaConta() {
                 >
                   {/* Corrigido aqui: de receitas.map para minhasReceitas.map */}
                   {minhasReceitas.map((r) => (
-                    <div 
-                      key={r.id} 
-                      className="bg-white rounded-2xl shadow p-4 flex-none w-64 sm:w-72 snap-start"
-                    >
+                    <Link key={r.id} to={`/receita/${r.id}`} className="bg-white rounded-2xl shadow p-4 flex-none w-64 sm:w-72 snap-start">
                       <img
                           src={`http://localhost:8000/${r.imagem_path}`}
                           alt={r.titulo}
@@ -182,7 +167,7 @@ export default function MinhaConta() {
                       <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
                       <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
                       <p className="text-sm text-yellow-500">⭐ {r.nota_media || "N/A"}</p>
-                    </div>
+                    </Link>
                   ))}
                 </div>
 
@@ -199,20 +184,30 @@ export default function MinhaConta() {
 
           <section>
             <h2 className="text-xl font-semibold text-purple-700 mb-4 px-2">Receitas Salvas</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
-              {recomendadas.map((r) => (
-                <div key={r.id} className="bg-white rounded-2xl shadow p-4 border border-purple-100">
-                  <img
-                    src={r.imagem_url || "https://via.placeholder.com/300x200"}
-                    alt={r.titulo}
-                    className="rounded-xl mb-2 w-full h-40 object-cover"
-                  />
-                  <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
-                  <p className="text-sm text-gray-600">Tempo: {r.tempo_preparo} min</p>
-                  <p className="text-sm text-yellow-500">⭐ {r.nota_media || "N/A"}</p>
-                </div>
-              ))}
-            </div>
+            
+            {/* Feedbacks de estado da API */}
+            {carregando && <p className="px-2 text-gray-500">Carregando receitas favoritas...</p>}
+            {erro && <p className="px-2 text-red-500">{erro}</p>}
+            {!carregando && !erro && receitasFavoritas.length === 0 && (
+              <p className="px-2 text-gray-500">Você ainda não salvou nenhuma receita.</p>
+            )}
+
+            {!carregando && !erro && receitasFavoritas.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
+                {receitasFavoritas.map((r) => (
+                  <Link key={r.id} to={`/receita/${r.id}`} className="bg-white rounded-2xl shadow p-4 border border-purple-100">
+                    <img
+                      src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
+                      alt={r.titulo}
+                      className="rounded-xl mb-2 w-full h-40 object-cover"
+                    />
+                    <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
+                    <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
+                    <p className="text-sm text-yellow-500">⭐ N/A</p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </section>
         </main>
       </div>

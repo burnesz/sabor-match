@@ -35,3 +35,8 @@ class Receita(Base):
         secondary="receita_categorias", 
         back_populates="receitas"
     )
+
+    favoritados: Mapped[List["User"]] = relationship(
+        secondary="receita_favoritas", 
+        back_populates="favoritas"
+    )

@@ -25,3 +25,9 @@ class ReceitaIngrediente(Base):
 
     receita: Mapped["Receita"] = relationship(back_populates="ingredientes_link")
     ingrediente: Mapped["Ingrediente"] = relationship()
+
+class ReceitaFavorita(Base):
+    __tablename__ = "receita_favoritas"
+
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    receita_id: Mapped[int] = mapped_column(ForeignKey("receitas.id"), primary_key=True)

@@ -20,6 +20,17 @@ class ReceitaCreate(ReceitaBase):
 class ReceitaResponse(ReceitaBase):
     id: int
     usuario_id: int
+    ingredientes: List[IngredienteSchema]
+    categorias: List[int]  # or more detailed if needed
+
+    class Config:
+        from_attributes = True
+
+class ReceitaCarrossel(BaseModel):
+    id: int
+    titulo: str
+    tempo_minutos: int
+    imagem_path: Optional[str] = None
 
     class Config:
         from_attributes = True

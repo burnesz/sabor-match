@@ -3,10 +3,10 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import FileResponse
 from app.models.categoria import Categoria
 from app.models.receita import Receita
-from ..schemas.receita import ReceitaCreate, ReceitaResponse
+from ..schemas.receita import ReceitaCreate, ReceitaResponse, ReceitaCarrossel
 from ..db.session import get_db
 from sqlalchemy.orm import Session
-from ..services.receita import create_receita, get_receitas_recentes_usuario
+from ..services.receita import create_receita, get_receitas_recentes_usuario, get_receitas_favoritas_usuario
 from ..utils.file_upload import deletar_imagem
 from ..core.dependencies import get_current_user
 from typing import List
@@ -26,7 +26,7 @@ def criar_receita(receita: ReceitaCreate, db: Session = Depends(get_db), current
         raise HTTPException(status_code=500, detail="Erro ao criar a receita")
     return db_receita
 
-@router.get("/minhas-receitas/carrossel", response_model=List[ReceitaResponse], status_code=200)
+@router.get("/minhas-receitas/carrossel", response_model=List[ReceitaCarrossel], status_code=200)
 def listar_receitas_carrossel(
     db: Session = Depends(get_db), 
     current_user: str = Depends(get_current_user)
@@ -35,3 +35,45 @@ def listar_receitas_carrossel(
     db_receitas = get_receitas_recentes_usuario(db=db, usuario_id=current_user.id, limite=10)
     
     return db_receitas
+
+@router.get("/receitas-favoritas", response_model=List[ReceitaCarrossel], status_code=200)
+def listar_receitas_favoritas(
+    db: Session = Depends(get_db), 
+    current_user: str = Depends(get_current_user)
+):
+    db_receitas = get_receitas_favoritas_usuario(db=db, usuario_id=current_user.id, limite=10)
+    
+    return db_receitas
+
+@router.get("/{receita_id}", response_model=ReceitaResponse)
+def obter_receita(receita_id: int, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
+    receita = db.query(Receita).filter(Receita.id == receita_id).first()
+    if not receita:
+        raise HTTPException(status_code=404, detail="Receita não encontrada")
+    # Assuming user can view their own recipes or public ones, but for now, allow if authenticated
+    
+    # Build ingredients list
+    ingredientes = [
+        {
+            "nome": ri.ingrediente.nome,
+            "quantidade": ri.quantidade,
+            "unidade": ri.unidade
+        }
+        for ri in receita.ingredientes_link
+    ]
+    
+    # Build categorias list (ids)
+    categorias = [cat.id for cat in receita.categorias]
+    
+    response = ReceitaResponse(
+        id=receita.id,
+        usuario_id=receita.usuario_id,
+        titulo=receita.titulo,
+        descricao=receita.descricao,
+        tempo_minutos=receita.tempo_minutos,
+        porcoes=receita.porcoes,
+        imagem_path=receita.imagem_path,
+        ingredientes=ingredientes,
+        categorias=categorias
+    )
+    return response

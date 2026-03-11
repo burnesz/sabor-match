@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.receita import Receita
 from app.models.ingrediente import Ingrediente
 from app.models.associacoes import ReceitaCategoria, ReceitaIngrediente
+from app.models.user import User
 from app.schemas.receita import ReceitaCreate
 from app.utils.utils import tratar_string
 
@@ -61,6 +62,19 @@ def get_receitas_recentes_usuario(db: Session, usuario_id: int, limite: int = 10
         db.query(Receita)
         .filter(Receita.usuario_id == usuario_id)
         .order_by(Receita.id.desc()) # Garante que as últimas criadas apareçam primeiro
+        .limit(limite)
+        .all()
+    )
+
+def get_receitas_favoritas_usuario(db: Session, usuario_id: int, limite: int = 10):
+    """
+    Busca as receitas favoritas de um usuário.
+    """
+    return (
+        db.query(Receita)
+        .join(Receita.favoritados)
+        .filter(User.id == usuario_id)
+        .order_by(Receita.id.desc())
         .limit(limite)
         .all()
     )
