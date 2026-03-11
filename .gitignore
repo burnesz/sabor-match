@@ -30,6 +30,6 @@ dist-ssr
 *.sln
 *.sw?
 start.sh
-backend/uploads/receitas/*
+backend/uploads/*
 !backend/uploads/receitas/.gitkeep
 .env

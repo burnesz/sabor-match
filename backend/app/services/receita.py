@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import exists, and_
 from app.models.receita import Receita
 from app.models.ingrediente import Ingrediente
 from app.models.associacoes import ReceitaCategoria, ReceitaIngrediente, ReceitaFavorita
@@ -113,13 +114,13 @@ def get_receitas_recentes_globais(db: Session, limite: int = 10):
         .all()
     )
 
-
 def get_recomendacoes_por_categoria_usuario(db: Session, usuario_id: int, limite: int = 10):
     """
     Busca receitas recomendadas ao usuário com base nas categorias de suas
-    receitas favoritas.
+    receitas favoritas. Se não houver favoritos, mostra receitas recentes de outros usuários.
     """
-    # coletar ids de categorias de receitas favoritas
+    
+    # 1. Coletar IDs únicos de categorias de receitas favoritas
     cat_ids = (
         db.query(ReceitaCategoria.categoria_id)
         .join(Receita, Receita.id == ReceitaCategoria.receita_id)
@@ -129,18 +130,36 @@ def get_recomendacoes_por_categoria_usuario(db: Session, usuario_id: int, limite
         .all()
     )
     cat_ids = [cid for (cid,) in cat_ids]
+    
+    # 2. Estratégia Alternativa (Cold Start)
     if not cat_ids:
-        return []
+        return (
+            db.query(Receita)
+            .filter(Receita.usuario_id != usuario_id)
+            .order_by(Receita.id.desc())
+            .limit(limite)
+            .all()
+        )
 
-    # pegar receitas nessas categorias, excluindo já favorited
+    # 3. Query principal de Recomendação
+    
+    # Subquery com EXISTS (Mais performático que NOT IN)
+    stmt_ja_favoritou = exists().where(
+        and_(
+            ReceitaFavorita.receita_id == Receita.id,
+            ReceitaFavorita.usuario_id == usuario_id
+        )
+    )
+
     query = (
         db.query(Receita)
         .join(Receita.categorias)
         .filter(Categoria.id.in_(cat_ids))
-        .filter(Receita.id.notin_(
-            db.query(ReceitaFavorita.receita_id).filter(ReceitaFavorita.usuario_id == usuario_id)
-        ))
+        .filter(~stmt_ja_favoritou)
+        .filter(Receita.usuario_id != usuario_id)
+        .distinct()
         .order_by(Receita.id.desc())
         .limit(limite)
     )
+    
     return query.all()
