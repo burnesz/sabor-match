@@ -123,11 +123,13 @@ export default function MinhaConta() {
             
           <div className="relative group mb-4">
             <div className="w-32 h-32 rounded-full border-4 border-purple-100 overflow-hidden relative">
-              <img 
-                src={fotoPerfil} 
-                alt="Foto de perfil" 
-                className={`w-full h-full object-cover transition ${fazendoUpload ? 'opacity-50' : 'opacity-100'}`}
-              />
+              {fotoPerfil && (
+                <img 
+                  src={fotoPerfil} 
+                  alt="Foto de perfil" 
+                  className={`w-full h-full object-cover transition ${fazendoUpload ? 'opacity-50' : 'opacity-100'}`}
+                />
+              )}
               {fazendoUpload && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-purple-800 font-bold text-sm">Enviando...</span>
