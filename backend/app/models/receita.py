@@ -13,7 +13,6 @@ class Receita(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     usuario_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    
     titulo: Mapped[str] = mapped_column(String(200), nullable=False)
     descricao: Mapped[str] = mapped_column(nullable=False)
     tempo_minutos: Mapped[int] = mapped_column(nullable=False)

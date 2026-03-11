@@ -203,7 +203,6 @@ export default function MinhaConta() {
                       />
                       <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
                       <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
-                      <p className="text-sm text-yellow-500">⭐ {r.nota_media || "N/A"}</p>
                     </Link>
                   ))}
                 </div>
@@ -240,7 +239,6 @@ export default function MinhaConta() {
                     />
                     <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
                     <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
-                    <p className="text-sm text-yellow-500">⭐ N/A</p>
                   </Link>
                 ))}
               </div>

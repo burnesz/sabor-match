@@ -1,52 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Header from "../../components/Header";
 import { notify } from '../../utils/notification.js';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { listaReceitasRecentes, listaReceitasRecomendadas } from "../../api/receitas.js";
 
-const receitasEstaticas = [
-  {
-    id: 1,
-    titulo: "Lasanha Bolonhesa Clássica",
-    tempo_preparo: 60,
-    nota_media: 4.8,
-    imagem_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  },
-  {
-    id: 2,
-    titulo: "Salmão Grelhado com Limão",
-    tempo_preparo: 25,
-    nota_media: 4.5,
-    imagem_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  },
-  {
-    id: 3,
-    titulo: "Brownie de Chocolate Intenso",
-    tempo_preparo: 45,
-    nota_media: 4.9,
-    imagem_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  },
-];
-
-const recomendadasEstaticas = [
-  {
-    id: 4,
-    titulo: "Torta de Frango Cremosa",
-    tempo_preparo: 50,
-    nota_media: 4.2,
-    imagem_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  },
-  {
-    id: 5,
-    titulo: "Sopa de Legumes da Vovó",
-    tempo_preparo: 30,
-    nota_media: 4.6,
-    imagem_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  },
-];
+// initial static lists removed; data will be loaded via API
 
 export default function Home() {
-  const receitas = receitasEstaticas;
-  const recomendadas = recomendadasEstaticas;
+  const [receitas, setReceitas] = useState([]);
+  const [recomendadas, setRecomendadas] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const jaNotificou = useRef(false);
@@ -67,6 +31,25 @@ export default function Home() {
     }
   }, [location, navigate]);
 
+  useEffect(() => {
+    const carregarFeed = async () => {
+      try {
+        const [rec, recs] = await Promise.all([
+          listaReceitasRecentes(),
+          listaReceitasRecomendadas(),
+        ]);
+        setReceitas(rec);
+        setRecomendadas(recs);
+      } catch (err) {
+        console.error("Erro carregando feed:", err);
+        setErro("Não foi possível carregar o feed");
+      } finally {
+        setCarregando(false);
+      }
+    };
+    carregarFeed();
+  }, []);
+
   return (
     <div className="min-h-screen w-screen bg-purple-50">
       <Header />
@@ -74,18 +57,22 @@ export default function Home() {
         {/* Receitas */}
         <section className="mb-10">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">Receitas Recentes</h2>
+          {carregando && <p className="text-gray-500">Carregando...</p>}
+          {erro && <p className="text-red-500 mb-4">{erro}</p>}
+          {!carregando && !erro && receitas.length === 0 && (
+            <p className="text-gray-500">Nenhuma receita disponível.</p>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {receitas.map((r) => (
-              <div key={r.id} className="bg-white rounded-2xl shadow p-4">
+              <Link to={`/receita/${r.id}`} key={r.id} className="block bg-white rounded-2xl shadow p-4 hover:shadow-lg transition">
                 <img
-                  src={r.imagem_url || "https://via.placeholder.com/300x200"}
+                  src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
                   alt={r.titulo}
                   className="rounded-xl mb-2 w-full h-40 object-cover"
                 />
                 <h3 className="font-bold text-purple-700">{r.titulo}</h3>
-                <p className="text-sm text-gray-600">Tempo: {r.tempo_preparo} min</p>
-                <p className="text-sm text-yellow-500">⭐ {r.nota_media || "N/A"}</p>
-              </div>
+                <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
+              </Link>
             ))}
           </div>
         </section>
@@ -93,18 +80,20 @@ export default function Home() {
         {/* Recomendações */}
         <section>
           <h2 className="text-xl font-semibold text-purple-700 mb-4">Recomendações Para Você</h2>
+          {!carregando && !erro && recomendadas.length === 0 && (
+            <p className="text-gray-500">Sem recomendações no momento.</p>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {recomendadas.map((r) => (
-              <div key={r.id} className="bg-white rounded-2xl shadow p-4 border border-purple-200">
+              <Link to={`/receita/${r.id}`} key={r.id} className="block bg-white rounded-2xl shadow p-4 border border-purple-200 hover:shadow-lg transition">
                 <img
-                  src={r.imagem_url || "https://via.placeholder.com/300x200"}
+                  src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
                   alt={r.titulo}
                   className="rounded-xl mb-2 w-full h-40 object-cover"
                 />
                 <h3 className="font-bold text-purple-700">{r.titulo}</h3>
-                <p className="text-sm text-gray-600">Tempo: {r.tempo_preparo} min</p>
-                <p className="text-sm text-yellow-500">⭐ {r.nota_media || "N/A"}</p>
-              </div>
+                <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
+              </Link>
             ))}
           </div>
         </section>

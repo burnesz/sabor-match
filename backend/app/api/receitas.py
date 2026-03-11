@@ -8,7 +8,13 @@ from app.models.user import User
 from ..schemas.receita import ReceitaCreate, ReceitaResponse, ReceitaCarrossel
 from ..db.session import get_db
 from sqlalchemy.orm import Session
-from ..services.receita import create_receita, get_receitas_recentes_usuario, get_receitas_favoritas_usuario
+from ..services.receita import (
+    create_receita,
+    get_receitas_recentes_usuario,
+    get_receitas_favoritas_usuario,
+    get_receitas_recentes_globais,
+    get_recomendacoes_por_categoria_usuario
+)
 from ..utils.file_upload import deletar_imagem
 from ..core.dependencies import get_current_user
 from typing import List
@@ -36,6 +42,21 @@ def listar_receitas_carrossel(
     # Fixamos o limite em 10 diretamente no backend
     db_receitas = get_receitas_recentes_usuario(db=db, usuario_id=current_user.id, limite=10)
     
+    return db_receitas
+
+@router.get("/recentes", response_model=List[ReceitaCarrossel], status_code=200)
+def listar_receitas_recentes_globais(
+    db: Session = Depends(get_db)
+):
+    db_receitas = get_receitas_recentes_globais(db=db, limite=10)
+    return db_receitas
+
+@router.get("/recomendadas", response_model=List[ReceitaCarrossel], status_code=200)
+def listar_receitas_recomendadas(
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    db_receitas = get_recomendacoes_por_categoria_usuario(db=db, usuario_id=current_user.id, limite=10)
     return db_receitas
 
 @router.get("/receitas-favoritas", response_model=List[ReceitaCarrossel], status_code=200)
@@ -106,7 +127,8 @@ def obter_receita(receita_id: int, db: Session = Depends(get_db), current_user: 
         ingredientes=ingredientes,
         categorias=categorias
     )
-    return response
+    # return dict to avoid any SQLAlchemy objects slipping through
+    return response.model_dump()
 
 @router.get("/{receita_id}/favoritada")
 def verificar_favorita(receita_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

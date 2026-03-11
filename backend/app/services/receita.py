@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from app.models.receita import Receita
 from app.models.ingrediente import Ingrediente
-from app.models.associacoes import ReceitaCategoria, ReceitaIngrediente
+from app.models.associacoes import ReceitaCategoria, ReceitaIngrediente, ReceitaFavorita
+from app.models.categoria import Categoria
 from app.models.user import User
 from app.schemas.receita import ReceitaCreate
 from app.utils.utils import tratar_string
@@ -48,7 +49,28 @@ def create_receita(db: Session, receita: ReceitaCreate, usuario_id: int):
         db.commit()
         db.refresh(db_receita)
         
-        return db_receita
+        ingredientes = [
+            {
+                "nome": link.ingrediente.nome,
+                "quantidade": link.quantidade,
+                "unidade": link.unidade
+            }
+            for link in db_receita.ingredientes_link
+        ]
+
+        categorias = [c.nome for c in db_receita.categorias]
+
+        return {
+            "id": db_receita.id,
+            "usuario_id": db_receita.usuario_id,
+            "titulo": db_receita.titulo,
+            "descricao": db_receita.descricao,
+            "tempo_minutos": db_receita.tempo_minutos,
+            "porcoes": db_receita.porcoes,
+            "imagem_path": db_receita.imagem_path,
+            "ingredientes": ingredientes,
+            "categorias": categorias
+        }
 
     except Exception as e:
         db.rollback()
@@ -78,3 +100,47 @@ def get_receitas_favoritas_usuario(db: Session, usuario_id: int, limite: int = 1
         .limit(limite)
         .all()
     )
+
+
+def get_receitas_recentes_globais(db: Session, limite: int = 10):
+    """
+    Busca as últimas receitas adicionadas no sistema, independente do usuário.
+    """
+    return (
+        db.query(Receita)
+        .order_by(Receita.id.desc())
+        .limit(limite)
+        .all()
+    )
+
+
+def get_recomendacoes_por_categoria_usuario(db: Session, usuario_id: int, limite: int = 10):
+    """
+    Busca receitas recomendadas ao usuário com base nas categorias de suas
+    receitas favoritas.
+    """
+    # coletar ids de categorias de receitas favoritas
+    cat_ids = (
+        db.query(ReceitaCategoria.categoria_id)
+        .join(Receita, Receita.id == ReceitaCategoria.receita_id)
+        .join(ReceitaFavorita, ReceitaFavorita.receita_id == Receita.id)
+        .filter(ReceitaFavorita.usuario_id == usuario_id)
+        .distinct()
+        .all()
+    )
+    cat_ids = [cid for (cid,) in cat_ids]
+    if not cat_ids:
+        return []
+
+    # pegar receitas nessas categorias, excluindo já favorited
+    query = (
+        db.query(Receita)
+        .join(Receita.categorias)
+        .filter(Categoria.id.in_(cat_ids))
+        .filter(Receita.id.notin_(
+            db.query(ReceitaFavorita.receita_id).filter(ReceitaFavorita.usuario_id == usuario_id)
+        ))
+        .order_by(Receita.id.desc())
+        .limit(limite)
+    )
+    return query.all()

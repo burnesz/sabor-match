@@ -74,3 +74,70 @@ export async function listarReceitasFavoritas() {
   }
   return response.json();
 }
+
+export async function favoritarReceita(id) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_URL}/${id}/favoritar`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao favoritar receita");
+  }
+  return response.json();
+}
+
+export async function desfavoritarReceita(id) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_URL}/${id}/favoritar`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao desfavoritar receita");
+  }
+}
+
+export async function listaReceitasRecentes() {
+  const response = await fetch(`${API_URL}/recentes`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao listar receitas recentes");
+  }
+  return response.json();
+}
+
+export async function listaReceitasRecomendadas() {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_URL}/recomendadas`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao listar receitas recomendadas");
+  }
+  return response.json();
+}
+export async function verificarFavorita(id) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_URL}/${id}/favoritada`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Erro ao verificar se receita é favorita");
+  }
+  return response.json();
+}
