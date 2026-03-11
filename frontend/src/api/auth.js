@@ -30,6 +30,25 @@ export async function register(nome, email, password) {
   return response.json();
 }
 
+export async function updateUser(userData) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_URL}/me`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(userData),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.detail || "Falha ao atualizar dados";
+
+    throw new Error(errorMessage);
+  }
+  return response.json();
+}
+
 export async function validateToken(storedToken) {
   const response = await fetch(`${API_URL}/validate-token`, {
     method: "GET",

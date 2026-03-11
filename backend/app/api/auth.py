@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from ..core.dependencies import get_current_user
 from ..core.security import create_access_token, verify_password, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES
 from ..schemas.auth import LoginRequest, TokenResponse
-from ..schemas.user import UserCreate, UserResponse
+from ..schemas.user import UserCreate, UserResponse, UserUpdate
 from ..models.user import User
 from ..db.session import get_db
 from ..services.user import create_user, get_user_by_email
@@ -48,6 +48,19 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         )
     db_user = create_user(db=db, user=user)
     return db_user
+
+@router.put("/me", response_model=UserResponse)
+def update_user(user_update: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if user_update.email:
+        existing_user = get_user_by_email(db=db, email=user_update.email)
+        if existing_user and existing_user.id != current_user.id:
+            raise HTTPException(status_code=400, detail="E-mail já cadastrado")
+        current_user.email = user_update.email
+    if user_update.nome:
+        current_user.nome = user_update.nome
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 @router.get("/validate-token", response_model=UserResponse)
 def validate_token(current_user: User = Depends(get_current_user)):

@@ -6,6 +6,7 @@ import { listaReceitasCarrossel, listarReceitasFavoritas } from "../../api/recei
 import { useAuth } from "../../context/AuthContext";
 import { uploadImagemPerfil } from "../../api/uploads.js";
 import { Link } from 'react-router-dom';
+import { updateUser } from "../../api/auth.js";
 
 export default function MinhaConta() {
   const carrosselRef = useRef(null);
@@ -13,10 +14,13 @@ export default function MinhaConta() {
   const [receitasFavoritas, setReceitasFavoritas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const fileInputRef = useRef(null);
   const [fotoPerfil, setFotoPerfil] = useState(`http://127.0.0.1:8000/uploads/perfil/perfil_${user.id}.png`);
   const [fazendoUpload, setFazendoUpload] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ nome: user.nome, email: user.email });
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const buscarReceitas = async () => {
@@ -63,6 +67,21 @@ export default function MinhaConta() {
     setFazendoUpload(false);
   }
   }
+
+  const handleUpdateUser = async () => {
+    try {
+      setUpdating(true);
+      const updatedUser = await updateUser(formData);
+      setUser(updatedUser); // Update the context
+      setShowModal(false);
+      // Maybe show a success message
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      // Show error
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const rolarEsquerda = () => {
     if (carrosselRef.current) {
@@ -120,7 +139,7 @@ export default function MinhaConta() {
 
             <h2 className="text-xl font-bold text-gray-800 p-4">{ user.nome }</h2>
 
-            <button className="w-full bg-purple-600 text-white py-2 px-4 rounded-xl font-medium hover:bg-purple-700 transition flex items-center justify-center gap-2">
+            <button className="w-full bg-purple-600 text-white py-2 px-4 rounded-xl font-medium hover:bg-purple-700 transition flex items-center justify-center gap-2" onClick={() => setShowModal(true)}>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
@@ -211,6 +230,49 @@ export default function MinhaConta() {
           </section>
         </main>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+            <h2 className="text-xl font-bold text-purple-700 mb-4">Editar Dados Pessoais</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nome</label>
+                <input
+                  type="text"
+                  value={formData.nome}
+                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">E-mail</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleUpdateUser}
+                disabled={updating}
+                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-purple-400"
+              >
+                {updating ? 'Salvando...' : 'Salvar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
