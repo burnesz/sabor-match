@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Header from "../../components/Header";
 import { notify } from '../../utils/notification.js';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { listaReceitasRecentes, listaReceitasRecomendadas } from "../../api/receitas.js";
+import ReceitaCard from "../../components/ReceitaCard";
 
 // initial static lists removed; data will be loaded via API
 
@@ -88,18 +89,10 @@ export default function Home() {
 
               <div 
                 ref={carrosselReceitasRef}
-                className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-proximity"
               >
                 {receitas.map((r) => (
-                  <Link to={`/receita/${r.id}`} key={r.id} className="block bg-white rounded-2xl shadow p-4 flex-none w-64 sm:w-72 snap-start hover:shadow-lg transition">
-                    <img
-                      src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
-                      alt={r.titulo}
-                      className="rounded-xl mb-2 w-full h-40 object-cover"
-                    />
-                    <h3 className="font-bold text-purple-700">{r.titulo}</h3>
-                    <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
-                  </Link>
+                  <ReceitaCard key={r.id} receita={r} />
                 ))}
               </div>
 
@@ -132,18 +125,10 @@ export default function Home() {
 
               <div 
                 ref={carrosselRecomendadasRef}
-                className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-proximity"
               >
                 {recomendadas.map((r) => (
-                  <Link to={`/receita/${r.id}`} key={r.id} className="block bg-white rounded-2xl shadow p-4 flex-none w-64 sm:w-72 snap-start border border-purple-200 hover:shadow-lg transition">
-                    <img
-                      src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
-                      alt={r.titulo}
-                      className="rounded-xl mb-2 w-full h-40 object-cover"
-                    />
-                    <h3 className="font-bold text-purple-700">{r.titulo}</h3>
-                    <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
-                  </Link>
+                  <ReceitaCard key={r.id} receita={r} />
                 ))}
               </div>
 

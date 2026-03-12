@@ -18,3 +18,10 @@ class UserResponse(UserBase):
 class UserUpdate(BaseModel):
     nome: Optional[str] = None
     email: Optional[EmailStr] = None
+
+class UsuarioPerfil(BaseModel):
+    id: int
+    nome: str
+
+    class Config:
+        from_attributes = True

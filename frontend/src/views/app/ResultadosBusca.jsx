@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Header from "../../components/Header";
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { buscarReceitas } from "../../api/receitas.js";
+import ReceitaCard from "../../components/ReceitaCard";
 
 export default function ResultadosBusca() {
   const [searchParams] = useSearchParams();
@@ -136,25 +137,7 @@ export default function ResultadosBusca() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                 {receitas.map((r) => (
-                  <Link
-                    to={`/receita/${r.id}`}
-                    key={r.id}
-                    className="block bg-white rounded-2xl shadow-md hover:shadow-lg transition duration-300 overflow-hidden"
-                  >
-                    <div className="relative h-40 bg-gray-200 overflow-hidden">
-                      <img
-                        src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
-                        alt={r.titulo}
-                        className="w-full h-full object-cover hover:scale-105 transition duration-300"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-gray-800 line-clamp-2 mb-2">{r.titulo}</h3>
-                      <p className="text-sm text-gray-600">
-                        ⏱️ {r.tempo_minutos} min
-                      </p>
-                    </div>
-                  </Link>
+                  <ReceitaCard key={r.id} receita={r} />
                 ))}
               </div>
 

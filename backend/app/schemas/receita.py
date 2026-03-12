@@ -6,6 +6,13 @@ class IngredienteSchema(BaseModel):
     quantidade: float
     unidade: str
 
+class UsuarioSimples(BaseModel):
+    id: int
+    nome: str
+
+    class Config:
+        from_attributes = True
+
 class ReceitaBase(BaseModel):
     titulo: str
     descricao: str
@@ -20,8 +27,9 @@ class ReceitaCreate(ReceitaBase):
 class ReceitaResponse(ReceitaBase):
     id: int
     usuario_id: int
+    usuario: UsuarioSimples
     ingredientes: List[IngredienteSchema]
-    categorias: List[str]  # nomes das categorias
+    categorias: List[str]
 
     class Config:
         from_attributes = True

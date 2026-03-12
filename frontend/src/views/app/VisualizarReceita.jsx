@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Header from "../../components/Header";
 import { obterReceita, verificarFavorita, favoritarReceita, desfavoritarReceita } from "../../api/receitas.js";
 
@@ -76,14 +76,44 @@ export default function VisualizarReceita() {
       <div className="max-w-6xl mx-auto p-6">
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="md:grid md:grid-cols-2 md:gap-8">
-            {receita.imagem_path && (
-              <img
-                src={`http://localhost:8000/${receita.imagem_path}`}
-                alt={receita.titulo}
-                className="w-full h-64 md:h-auto object-cover rounded-xl mb-6 md:mb-0"
-              />
-            )}
+            {/* Coluna Esquerda: Imagem, Ingredientes e Categorias */}
+            <div className="flex flex-col gap-6">
+              {receita.imagem_path && (
+                <img
+                  src={`http://localhost:8000/${receita.imagem_path}`}
+                  alt={receita.titulo}
+                  className="w-full h-64 md:h-auto object-cover rounded-xl"
+                />
+              )}
 
+              {/* Ingredientes */}
+              <div>
+                <h2 className="text-2xl font-semibold text-purple-700 mb-4">Ingredientes</h2>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                  {receita.ingredientes.map((ing, index) => (
+                    <li key={index} className="text-gray-700">
+                      {ing.quantidade} {ing.unidade} de <span className="font-medium">{ing.nome}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Categorias */}
+              {receita.categorias.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-semibold text-purple-700 mb-4">Categorias</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {receita.categorias.map((nome) => (
+                      <span key={nome} className="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
+                        {nome}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Coluna Direita: Título, Info, Publicado por e Modo de Preparo */}
             <div className="flex flex-col">
               <div className="relative">
                 <h1 className="text-4xl font-extrabold text-purple-700 mb-4 leading-tight">{receita.titulo}</h1>
@@ -99,11 +129,30 @@ export default function VisualizarReceita() {
                 >
                   {favoriting ? '...' : (isFavorited ? '❤️' : '🤍')}
                 </button>
-                <div className="flex items-center mb-4 gap-3 flex-wrap">
+                <div className="flex items-center mb-6 gap-3 flex-wrap">
                   <span className="text-purple-500 font-semibold">{receita.tempo_minutos} min</span>
                   <span className="text-purple-500 font-semibold">·</span>
                   <span className="text-purple-500 font-semibold">{receita.porcoes} porções</span>
                 </div>
+
+                {/* Publicado por */}
+                {receita.usuario && (
+                  <div className="bg-purple-50 rounded-lg p-4 mb-6 border border-purple-200">
+                    <p className="text-sm text-gray-600 mb-2">Publicado por</p>
+                    <Link
+                      to={`/perfil/${receita.usuario.id}`}
+                      className="flex items-center gap-3 hover:opacity-80 transition"
+                    >
+                    <img
+                      src= {`http://localhost:8000/uploads/perfil/perfil_${receita.usuario.id}.png`}
+                      alt={receita.usuario.nome}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                      <span className="font-semibold text-gray-800 hover:text-purple-700">{receita.usuario.nome}</span>
+                    </Link>
+                  </div>
+                )}
+
                 <h2 className="text-2xl font-semibold text-purple-700 mb-4">Modo de Preparo</h2>
 
                 <div className="max-h-80 overflow-y-auto mb-6 pr-2 border border-purple-100 rounded-lg p-4 bg-gray-50">
@@ -112,30 +161,6 @@ export default function VisualizarReceita() {
               </div>
             </div>
           </div>
-
-          <div className="mt-10">
-            <h2 className="text-2xl font-semibold text-purple-700 mb-4">Ingredientes</h2>
-            <ul className="list-disc list-inside space-y-2 pl-4">
-              {receita.ingredientes.map((ing, index) => (
-                <li key={index} className="text-gray-700">
-                  {ing.quantidade} {ing.unidade} de <span className="font-medium">{ing.nome}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {receita.categorias.length > 0 && (
-            <div className="mt-10">
-              <h2 className="text-2xl font-semibold text-purple-700 mb-4">Categorias</h2>
-              <div className="flex flex-wrap gap-2">
-                {receita.categorias.map((nome) => (
-                  <span key={nome} className="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {nome}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

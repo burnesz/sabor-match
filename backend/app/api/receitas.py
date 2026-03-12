@@ -102,8 +102,7 @@ def obter_receita(receita_id: int, db: Session = Depends(get_db), current_user: 
     receita = db.query(Receita).filter(Receita.id == receita_id).first()
     if not receita:
         raise HTTPException(status_code=404, detail="Receita não encontrada")
-    # Assuming user can view their own recipes or public ones, but for now, allow if authenticated
-    
+
     # Build ingredients list
     ingredientes = [
         {
@@ -113,13 +112,20 @@ def obter_receita(receita_id: int, db: Session = Depends(get_db), current_user: 
         }
         for ri in receita.ingredientes_link
     ]
-    
+
     # Build categorias list (nomes)
     categorias = [cat.nome for cat in receita.categorias]
-    
+
+    # Build usuario data
+    usuario_data = {
+        "id": receita.user.id,
+        "nome": receita.user.nome
+    }
+
     response = ReceitaResponse(
         id=receita.id,
         usuario_id=receita.usuario_id,
+        usuario=usuario_data,
         titulo=receita.titulo,
         descricao=receita.descricao,
         tempo_minutos=receita.tempo_minutos,
@@ -166,3 +172,42 @@ def buscar_receitas_endpoint(
         pagina_atual=pagina,
         tamanho_pagina=tamanho_pagina
     )
+
+@router.get("/usuario/{usuario_id}/receitas", response_model=List[ReceitaCarrossel], status_code=200)
+def listar_receitas_usuario(
+    usuario_id: int,
+    db: Session = Depends(get_db)
+):
+    db_receitas = (
+        db.query(Receita)
+        .filter(Receita.usuario_id == usuario_id)
+        .order_by(Receita.id.desc())
+        .limit(20)
+        .all()
+    )
+    return db_receitas
+
+@router.get("/usuario/{usuario_id}/perfil")
+def obter_perfil_usuario(
+    usuario_id: int,
+    db: Session = Depends(get_db)
+):
+    usuario = db.query(User).filter(User.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+    receitas = (
+        db.query(Receita)
+        .filter(Receita.usuario_id == usuario_id)
+        .order_by(Receita.id.desc())
+        .all()
+    )
+
+    return {
+        "usuario": {
+            "id": usuario.id,
+            "nome": usuario.nome
+        },
+        "receitas": receitas,
+        "total_receitas": len(receitas)
+    }

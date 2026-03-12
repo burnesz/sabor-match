@@ -194,19 +194,10 @@ export default function MinhaConta() {
 
                 <div 
                   ref={carrosselMinhasReceitasRef}
-                  className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-proximity"
                 >
-                  {/* Corrigido aqui: de receitas.map para minhasReceitas.map */}
                   {minhasReceitas.map((r) => (
-                    <Link key={r.id} to={`/receita/${r.id}`} className="bg-white rounded-2xl shadow p-4 flex-none w-64 sm:w-72 snap-start">
-                      <img
-                          src={`http://localhost:8000/${r.imagem_path}`}
-                          alt={r.titulo}
-                          className="rounded-xl mb-2 w-full h-40 object-cover"
-                      />
-                      <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
-                      <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
-                    </Link>
+                    <ReceitaCard key={r.id} receita={r} />
                   ))}
                 </div>
 
@@ -243,18 +234,10 @@ export default function MinhaConta() {
 
                 <div 
                   ref={carrosselReceitasSalvasRef}
-                  className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-proximity"
                 >
                   {receitasFavoritas.map((r) => (
-                    <Link key={r.id} to={`/receita/${r.id}`} className="bg-white rounded-2xl shadow p-4 flex-none w-64 sm:w-72 snap-start border border-purple-100">
-                      <img
-                        src={r.imagem_path ? `http://localhost:8000/${r.imagem_path}` : "https://via.placeholder.com/300x200"}
-                        alt={r.titulo}
-                        className="rounded-xl mb-2 w-full h-40 object-cover"
-                      />
-                      <h3 className="font-bold text-purple-700 truncate">{r.titulo}</h3>
-                      <p className="text-sm text-gray-600">Tempo: {r.tempo_minutos} min</p>
-                    </Link>
+                    <ReceitaCard key={r.id} receita={r} />
                   ))}
                 </div>
 
