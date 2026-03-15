@@ -1,4 +1,4 @@
-# Sabor Match (Em desenvolvimento)
+# Sabor Match
 
 O **Sabor Match** é uma aplicação web *full-stack* desenvolvida para a partilha e descoberta de receitas culinárias. A plataforma permite aos utilizadores criar conta, autenticar-se, explorar um *feed* de receitas e publicar as suas próprias criações culinárias, incluindo detalhes como ingredientes, tempo de preparação e fotografias.
 
@@ -49,13 +49,17 @@ A forma mais simples de executar o projeto é através do Docker, que configura 
 
     Exemplo de `.env`:
     ```env
-    ENVIRONMENT=docker
-    POSTGRES_USER=prod
-    POSTGRES_PASSWORD=1234
-    POSTGRES_DB=sabor_match
+    ENVIRONMENT=local
+
+    POSTGRES_USER=user
+    POSTGRES_PASSWORD=senha
+    POSTGRES_DB=database
+    
     POSTGRES_HOST_LOCAL=localhost
     POSTGRES_HOST_DOCKER=db
     POSTGRES_PORT=5432
+    
+    SECRET_KEY=secret_key
     ```
 
 3.  **Arrancar a Aplicação:**
@@ -122,6 +126,7 @@ sabor-match/
 │   │   ├── db/           # Configuração da sessão de base de dados
 │   │   ├── models/       # Modelos SQLAlchemy (Tabelas)
 │   │   ├── schemas/      # Esquemas Pydantic (Validação de dados)
+│   │   ├── utils/        # Funções que podem ser reutilizadas no código
 │   │   └── main.py       # Ponto de entrada da aplicação FastAPI
 │   ├── migrations/       # Versões de migração do Alembic
 │   ├── uploads/          # Diretório para armazenamento de imagens
@@ -132,6 +137,7 @@ sabor-match/
 │   │   ├── api/          # Funções de comunicação com o Backend
 │   │   ├── components/   # Componentes reutilizáveis (Header, AuthWrapper)
 │   │   ├── context/      # Contexto de Autenticação (AuthContext)
+│   │   ├── hooks/        # Utilitários de lógica dentro da UI, importados nas views
 │   │   ├── views/        # Páginas (Home, Login, Register, NovaReceita)
 │   │   └── App.jsx       # Definição de rotas
 │   └── Dockerfile        #
