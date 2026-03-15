@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'; // Adicionado o useState aqui
+import React, { useEffect, useRef, useState } from 'react';
 import Header from "../../components/Header";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
@@ -24,6 +24,7 @@ export default function MinhaConta() {
   const [formData, setFormData] = useState({ nome: '', email: '' });
   const [updating, setUpdating] = useState(false);
 
+  // 1º Hook: Atualiza a foto de perfil e os dados do form quando o user carregar
   useEffect(() => {
     if (user) {
       setFotoPerfil(`${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${user.id}.png`);
@@ -31,20 +32,10 @@ export default function MinhaConta() {
     }
   }, [user]);
 
-  if (!user) {
-    return (
-      <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
-        <Header />
-        <div className="max-w-6xl mx-auto p-6">
-          <p className="text-gray-500">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
   useEffect(() => {
     const buscarReceitas = async () => {
       try {
+        setCarregando(true); // Garante o status de carregamento
         const [dataMinhas, dataFavoritas] = await Promise.all([
           listaReceitasCarrossel(),
           listarReceitasFavoritas()
@@ -59,45 +50,56 @@ export default function MinhaConta() {
       }
     };
 
-    buscarReceitas();
-  }, []);
+    // Só dispara a API se o usuário já estiver disponível no contexto
+    if (user) {
+      buscarReceitas();
+    }
+  }, [user]); // Agora ele depende de 'user' para rodar no momento certo
+
+  // REGRA DE OURO: Retornos antecipados (early returns) SEMPRE vêm DEPOIS de todos os Hooks
+  if (!user) {
+    return (
+      <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
+        <Header />
+        <div className="max-w-6xl mx-auto p-6">
+          <p className="text-gray-500">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   const dispararEscolhaDeArquivo = () => {
-  // Simula um clique no input de arquivo invisível
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
   const handleUploadImagem = async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
 
-  // 1. Cria um preview local rápido para o usuário não ficar esperando
-  const previewUrl = URL.createObjectURL(file);
-  setFotoPerfil(previewUrl);
+    const previewUrl = URL.createObjectURL(file);
+    setFotoPerfil(previewUrl);
   
-  try {
-    setFazendoUpload(true);
-    const response = await uploadImagemPerfil(file);
-    console.log("Upload bem-sucedido:", response);
-  } catch (error) {
-    console.error("Erro no upload:", error);
-  } finally {
-    setFazendoUpload(false);
-  }
+    try {
+      setFazendoUpload(true);
+      const response = await uploadImagemPerfil(file);
+      console.log("Upload bem-sucedido:", response);
+    } catch (error) {
+      console.error("Erro no upload:", error);
+    } finally {
+      setFazendoUpload(false);
+    }
   }
 
   const handleUpdateUser = async () => {
     try {
       setUpdating(true);
       const updatedUser = await updateUser(formData);
-      setUser(updatedUser); // Update the context
+      setUser(updatedUser); 
       setShowModal(false);
-      // Maybe show a success message
     } catch (error) {
       console.error("Erro ao atualizar:", error);
-      // Show error
     } finally {
       setUpdating(false);
     }
@@ -116,7 +118,6 @@ export default function MinhaConta() {
   };
 
   return (
-    // Corrigido para min-h-screen e w-full
     <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
       <Header />
       <main className="p-6 max-w-6xl mx-auto">
@@ -141,7 +142,6 @@ export default function MinhaConta() {
               )}
             </div>
             
-            {/* Input invisível que faz a ponte com o sistema de arquivos */}
             <input 
               type="file" 
               accept="image/*" 
@@ -150,7 +150,6 @@ export default function MinhaConta() {
               onChange={handleUploadImagem} 
             />
 
-            {/* Botão "Bola" para editar foto */}
             <button 
               onClick={dispararEscolhaDeArquivo}
               disabled={fazendoUpload}
@@ -177,14 +176,12 @@ export default function MinhaConta() {
           <section className="mb-10 w-full max-w-full min-w-0">
             <h2 className="text-xl font-semibold text-purple-700 mb-4 px-2">Minhas Receitas</h2>
             
-            {/* Feedbacks de estado da API */}
             {carregando && <p className="px-2 text-gray-500">Carregando receitas...</p>}
             {erro && <p className="px-2 text-red-500">{erro}</p>}
             {!carregando && !erro && minhasReceitas.length === 0 && (
               <p className="px-2 text-gray-500">Você ainda não criou nenhuma receita.</p>
             )}
 
-            {/* Só exibe o carrossel se houver receitas */}
             {!carregando && !erro && minhasReceitas.length > 0 && (
               <div className="relative w-full group">
                 <button 
@@ -218,7 +215,6 @@ export default function MinhaConta() {
           <section>
             <h2 className="text-xl font-semibold text-purple-700 mb-4 px-2">Receitas Salvas</h2>
             
-            {/* Feedbacks de estado da API */}
             {carregando && <p className="px-2 text-gray-500">Carregando receitas favoritas...</p>}
             {erro && <p className="px-2 text-red-500">{erro}</p>}
             {!carregando && !erro && receitasFavoritas.length === 0 && (

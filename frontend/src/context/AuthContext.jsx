@@ -37,9 +37,10 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  const login = (token) => {
+  const login = async (token, userData) => {
     localStorage.setItem("token", token);
     setToken(token);
+    setUser(userData);
     navigate("/");
   };
 

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { login as apiLogin } from "../../api/auth";
 import { useAuth } from "../../context/AuthContext";
+import { validateToken } from "../../api/auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -17,11 +17,10 @@ export default function Login() {
 
     try {
       const data = await apiLogin(email, password);
-      console.log(email, password)
-
+      const userData = await validateToken(data.access_token);
       setSuccess("Login realizado com sucesso!");
 
-      login(data.access_token);
+      login(data.access_token, userData);
       // Limpa campos
       setEmail("");
       setPassword("");
