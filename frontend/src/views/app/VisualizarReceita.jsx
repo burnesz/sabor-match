@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Header from "../../components/Header";
 import { obterReceita, verificarFavorita, favoritarReceita, desfavoritarReceita } from "../../api/receitas.js";
 import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function VisualizarReceita() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function VisualizarReceita() {
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriting, setFavoriting] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const buscarReceita = async () => {
@@ -142,7 +144,10 @@ export default function VisualizarReceita() {
       <h2 className="text-2xl font-semibold text-purple-700 mt-2 mb-4">Categorias</h2>
       <div className="flex flex-wrap gap-2">
         {receita.categorias.map((nome) => (
-          <span key={nome} className="bg-purple-100 text-purple-800 border border-purple-200 px-3 py-1 rounded-full text-sm font-medium">
+          <span 
+            key={nome} 
+            onClick={() => navigate(`/buscar?q=${encodeURIComponent(nome)}`)} 
+            className="cursor-pointer px-3 py-1 text-sm font-medium rounded-full border border-purple-200 bg-purple-100 text-purple-800 transition hover:-translate-y-1 hover:bg-purple-700 hover:text-white">
             {nome}
           </span>
         ))}
