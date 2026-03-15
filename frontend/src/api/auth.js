@@ -4,20 +4,36 @@ export async function login(email, password) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!emailRegex.test(email)) {
-    throw new Error("E-mail inválido, o e-mail deve conter '@' e um domínio. Ex: email@example.com");
+    throw new Error(
+      "E-mail inválido, o e-mail deve conter '@' e um domínio. Ex: email@example.com"
+    );
   }
-  const response = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.detail || "E-mail ou senha inválidos";
 
-    throw new Error(errorMessage);
+  try {
+    const response = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      // tenta extrair a mensagem de erro do servidor
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.detail || "E-mail ou senha inválidos";
+      throw new Error(errorMessage);
+    }
+
+    return await response.json();
+  } catch (err) {
+    // verifica se é erro de rede
+    if (err instanceof TypeError && err.message === "Failed to fetch") {
+      throw new Error(
+        "Não foi possível conectar ao servidor. Verifique sua conexão ou tente novamente mais tarde."
+      );
+    }
+    // re-lança outros erros
+    throw err;
   }
-  return response.json();
 }
 
 export async function register(nome, email, password) {
