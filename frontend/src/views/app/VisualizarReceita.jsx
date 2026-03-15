@@ -46,7 +46,7 @@ export default function VisualizarReceita() {
 
   // Lógica de UI (cálculo de URL da imagem de perfil)
   const urlDaFoto = receita?.usuario?.id 
-    ? `${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${receita.usuario.id}.png` 
+    ? `${import.meta.env.VITE_SABOR_MATCH_API}/uploads/perfil/perfil_${receita.usuario.id}.png` 
     : '';
 
   // ==========================================
@@ -54,7 +54,7 @@ export default function VisualizarReceita() {
   // ==========================================
   const imagemEl = receita.imagem_path && (
     <img
-      src={`${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/receitas/${receita.imagem_path}`}
+      src={`${import.meta.env.VITE_SABOR_MATCH_API}/uploads/receitas/${receita.imagem_path}`}
       alt={receita.titulo}
       className="w-full h-64 md:h-80 object-cover mb-4 rounded-xl shadow-sm"
     />
