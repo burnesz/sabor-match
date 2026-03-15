@@ -11,6 +11,10 @@ html {
   overflow-x: hidden; /* Garante que nada estoure horizontalmente */
 }
 
+body, html {
+  background-color: #9333ea; /* Cor de segurança para o fundo do celular */
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
