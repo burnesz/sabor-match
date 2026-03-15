@@ -7,11 +7,11 @@ const ReceitaCard = ({ receita }) => {
     <Link
       to={`/receita/${receita.id}`}
       key={receita.id}
-      className="bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg transition duration-300"
+      className="bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg transition duration-300 w-70 flex-shrink-0"
     >
       <div className="relative h-40 bg-gray-200 overflow-hidden">
         <img
-          src={receita.imagem_path ? `http://localhost:8000/${receita.imagem_path}` : "https://via.placeholder.com/300x200"}
+          src={import.meta.env.VITE_SABOR_MATCH_BACKEND + receita.imagem_path}
           alt={receita.titulo}
           className="w-full h-full object-cover hover:scale-105 transition duration-300"
         />

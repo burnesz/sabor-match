@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/receitas";
+const API_URL = import.meta.env.VITE_SABOR_MATCH_BACKEND + "/receitas";
 
 export async function novaReceita(form) {
   const token = localStorage.getItem("token");

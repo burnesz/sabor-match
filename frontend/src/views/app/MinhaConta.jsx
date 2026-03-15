@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { uploadImagemPerfil } from "../../api/uploads.js";
 import { Link } from 'react-router-dom';
 import { updateUser } from "../../api/auth.js";
+import ReceitaCard from "../../components/ReceitaCard.jsx";
 
 export default function MinhaConta() {
   const carrosselMinhasReceitasRef = useRef(null);
@@ -25,7 +26,7 @@ export default function MinhaConta() {
 
   useEffect(() => {
     if (user) {
-      setFotoPerfil(`http://127.0.0.1:8000/uploads/perfil/perfil_${user.id}.png`);
+      setFotoPerfil(`${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${user.id}.png`);
       setFormData({ nome: user.nome, email: user.email });
     }
   }, [user]);
@@ -118,6 +119,8 @@ export default function MinhaConta() {
     // Corrigido para min-h-screen e w-full
     <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
       <Header />
+      <main className="p-6 max-w-6xl mx-auto">
+      <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
       <div className="max-w-6xl mx-auto p-6 flex flex-col md:flex-row gap-8">
         <div className="w-full md:w-80 flex-shrink-0">
           <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center sticky top-6">
@@ -196,9 +199,9 @@ export default function MinhaConta() {
                   ref={carrosselMinhasReceitasRef}
                   className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-proximity"
                 >
-                  {minhasReceitas.map((r) => (
-                    <ReceitaCard key={r.id} receita={r} />
-                  ))}
+                {minhasReceitas.map((r) => (
+                  <ReceitaCard key={r.id} receita={r} />
+                ))}
                 </div>
 
                 <button 
@@ -236,9 +239,9 @@ export default function MinhaConta() {
                   ref={carrosselReceitasSalvasRef}
                   className="flex overflow-x-auto gap-6 pb-4 px-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-proximity"
                 >
-                  {receitasFavoritas.map((r) => (
-                    <ReceitaCard key={r.id} receita={r} />
-                  ))}
+                {receitasFavoritas.map((r) => (
+                  <ReceitaCard key={r.id} receita={r} />
+                ))}
                 </div>
 
                 <button 
@@ -296,6 +299,8 @@ export default function MinhaConta() {
           </div>
         </div>
       )}
+      </div>
+      </main>
     </div>
   );
 }

@@ -17,6 +17,7 @@ export default function Login() {
 
     try {
       const data = await apiLogin(email, password);
+      console.log(email, password)
 
       setSuccess("Login realizado com sucesso!");
 

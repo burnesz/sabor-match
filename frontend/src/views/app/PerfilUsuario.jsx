@@ -13,7 +13,7 @@ export default function PerfilUsuario() {
     const buscarPerfil = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/receitas/usuario/${usuario_id}/perfil`
+          import.meta.env.VITE_SABOR_MATCH_BACKEND + "/receitas/usuario/" + usuario_id + "/perfil"
         );
         if (!response.ok) {
           throw new Error("Usuário não encontrado");
@@ -69,10 +69,10 @@ export default function PerfilUsuario() {
       <Header />
       <div className="max-w-6xl mx-auto p-6">
         {/* Cabeçalho do Perfil */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+        <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
           <div className="flex items-center gap-6 mb-6">
             <img
-              src= {`http://localhost:8000/uploads/perfil/perfil_${perfil.usuario.id}.png`}
+              src= {import.meta.env.VITE_SABOR_MATCH_BACKEND + "/uploads/perfil/perfil_" + perfil.usuario.id + ".png"}
               alt={perfil.usuario.nome}
               className="w-24 h-24 rounded-full object-cover"
             />
@@ -88,7 +88,7 @@ export default function PerfilUsuario() {
         </div>
 
         {/* Receitas do Usuário */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
           <h2 className="text-2xl font-semibold text-purple-700 mb-6">
             Receitas de {perfil.usuario.nome}
           </h2>

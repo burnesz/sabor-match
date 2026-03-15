@@ -27,7 +27,7 @@ def listar_categorias(db: Session = Depends(get_db)):
     db_categorias = db.query(Categoria).all()
     return db_categorias
 
-@router.post("/nova-receita", response_model=ReceitaResponse, status_code=201)
+@router.post("/nova-receita", status_code=201)
 def criar_receita(receita: ReceitaCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_receita = create_receita(db=db, receita=receita, usuario_id=current_user.id)
     if not db_receita:

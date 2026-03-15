@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from "../../components/Header";
 import { obterReceita, verificarFavorita, favoritarReceita, desfavoritarReceita } from "../../api/receitas.js";
+import { useAuth } from "../../context/AuthContext";
 
 export default function VisualizarReceita() {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function VisualizarReceita() {
   const [erro, setErro] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriting, setFavoriting] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const buscarReceita = async () => {
@@ -50,117 +52,169 @@ export default function VisualizarReceita() {
 
   if (carregando) {
     return (
-      <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
+      <div className="min-h-screen w-screen overflow-x-hidden bg-purple-50 flex flex-col">
         <Header />
-        <div className="max-w-6xl mx-auto p-6">
-          <p className="text-gray-500">Carregando receita...</p>
+        <div className="flex-1 max-w-6xl w-full mx-auto p-6">
+          <p className="text-gray-500 animate-pulse">Carregando receita...</p>
         </div>
       </div>
     );
   }
 
-  if (erro) {
+  if (erro || !receita) {
     return (
-      <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
+      <div className="min-h-screen w-screen overflow-x-hidden bg-purple-50 flex flex-col">
         <Header />
-        <div className="max-w-6xl mx-auto p-6">
-          <p className="text-red-500">{erro}</p>
+        <div className="flex-1 max-w-6xl w-full mx-auto p-6">
+          <p className="text-red-500">{erro || "Receita não encontrada."}</p>
         </div>
       </div>
     );
   }
 
+  const imagemEl = receita.imagem_path && (
+    <img
+      src={import.meta.env.VITE_SABOR_MATCH_BACKEND + receita.imagem_path}
+      alt={receita.titulo}
+      className="w-full h-64 md:h-80 object-cover mb-4 rounded-xl shadow-sm"
+    />
+  );
+
+  const tituloEInfoEl = (
+    <div className="relative mb-6 md:mb-0">
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-purple-700 mb-4 leading-tight pr-14">
+        {receita.titulo}
+      </h1>
+      <button
+        onClick={toggleFavorite}
+        disabled={favoriting}
+        className={`absolute -top-2 -right-2 p-3 rounded-full transition shadow-md ${
+          isFavorited
+            ? 'bg-red-500 text-white hover:bg-red-600'
+            : 'bg-white text-gray-700 hover:bg-gray-100'
+        } disabled:opacity-50`}
+        title={isFavorited ? 'Desfavoritar' : 'Favoritar'}
+      >
+        {favoriting ? '...' : isFavorited ? '❤️' : '🤍'}
+      </button>
+      <div className="flex items-center gap-3 flex-wrap mb-6">
+        <span className="text-purple-500 font-semibold">{receita.tempo_minutos} min</span>
+        <span className="text-purple-500 font-semibold">·</span>
+        <span className="text-purple-500 font-semibold">{receita.porcoes} porções</span>
+      </div>
+    </div>
+  );
+
+  const autorEl = receita.usuario && (
+    <div className="bg-purple-50 rounded-lg p-4 mb-4 border border-purple-200">
+      <p className="text-sm text-gray-600 mb-2">Publicado por</p>
+      <Link
+        to={user?.id === receita.usuario.id ? `/minha-conta` : `/perfil/${receita.usuario.id}`}
+        className="flex items-center gap-3 hover:opacity-80 transition"
+      >
+        <img
+          src={import.meta.env.VITE_SABOR_MATCH_BACKEND + "/uploads/perfil/perfil_" + receita.usuario.id + ".png"}
+          alt={receita.usuario.nome}
+          className="w-12 h-12 rounded-full object-cover shadow-sm border border-white"
+        />
+        <span className="font-semibold text-gray-800 hover:text-purple-700">
+          {receita.usuario.nome}
+        </span>
+      </Link>
+    </div>
+  );
+
+  const ingredientesEl = (
+    <div>
+      <h2 className="text-2xl font-semibold text-purple-700 mb-4">Ingredientes</h2>
+      <ul className="list-disc list-inside space-y-2 pl-2">
+        {receita.ingredientes.map((ing, index) => (
+          <li key={index} className="text-gray-700">
+            {ing.quantidade} {ing.unidade} de <span className="font-medium">{ing.nome}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const categoriasEl = receita.categorias && receita.categorias.length > 0 && (
+    <div>
+      <h2 className="text-2xl font-semibold text-purple-700 mt-2 mb-4">Categorias</h2>
+      <div className="flex flex-wrap gap-2">
+        {receita.categorias.map((nome) => (
+          <span key={nome} className="bg-purple-100 text-purple-800 border border-purple-200 px-3 py-1 rounded-full text-sm font-medium">
+            {nome}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+
+  const preparoEl = (
+    <div>
+      <h2 className="text-2xl font-semibold text-purple-700 mb-4">Modo de Preparo</h2>
+      <div className="max-h-96 md:max-h-[500px] overflow-y-auto pr-2 border border-purple-100 rounded-lg p-5 bg-gray-50 shadow-inner">
+        <p className="text-gray-700 whitespace-pre-line leading-relaxed">{receita.descricao}</p>
+      </div>
+    </div>
+  );
+
+  // --- 2. Renderização Responsiva ---
   return (
-    <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
+    <div className="min-h-screen w-screen overflow-x-hidden bg-purple-50 flex flex-col">
       <Header />
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <div className="md:grid md:grid-cols-2 md:gap-8">
-            {/* Coluna Esquerda: Imagem, Ingredientes e Categorias */}
+      <div className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6">
+        <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
+          
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-8">
+            
+            {/* === COLUNA ESQUERDA === */}
             <div className="flex flex-col gap-6">
-              {receita.imagem_path && (
-                <img
-                  src={`http://localhost:8000/${receita.imagem_path}`}
-                  alt={receita.titulo}
-                  className="w-full h-64 md:h-auto object-cover rounded-xl"
-                />
-              )}
-
-              {/* Ingredientes */}
-              <div>
-                <h2 className="text-2xl font-semibold text-purple-700 mb-4">Ingredientes</h2>
-                <ul className="list-disc list-inside space-y-2 pl-4">
-                  {receita.ingredientes.map((ing, index) => (
-                    <li key={index} className="text-gray-700">
-                      {ing.quantidade} {ing.unidade} de <span className="font-medium">{ing.nome}</span>
-                    </li>
-                  ))}
-                </ul>
+              
+              {/* Visível APENAS no Mobile: Título e Info vão pro topo */}
+              <div className="block md:hidden">
+                {tituloEInfoEl}
               </div>
 
-              {/* Categorias */}
-              {receita.categorias.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-semibold text-purple-700 mb-4">Categorias</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {receita.categorias.map((nome) => (
-                      <span key={nome} className="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {nome}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+              {/* Imagem (Fica no lugar natural na coluna esquerda pro Desktop, mas encaixa perfeito depois do título no Mobile) */}
+              {imagemEl}
 
-            {/* Coluna Direita: Título, Info, Publicado por e Modo de Preparo */}
-            <div className="flex flex-col">
-              <div className="relative">
-                <h1 className="text-4xl font-extrabold text-purple-700 mb-4 leading-tight">{receita.titulo}</h1>
-                <button
-                  onClick={toggleFavorite}
-                  disabled={favoriting}
-                  className={`absolute -top-2 -right-2 p-2 rounded-full transition shadow-lg ${
-                    isFavorited
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
-                  } disabled:opacity-50`}
-                  title={isFavorited ? 'Desfavoritar' : 'Favoritar'}
-                >
-                  {favoriting ? '...' : (isFavorited ? '❤️' : '🤍')}
-                </button>
-                <div className="flex items-center mb-6 gap-3 flex-wrap">
-                  <span className="text-purple-500 font-semibold">{receita.tempo_minutos} min</span>
-                  <span className="text-purple-500 font-semibold">·</span>
-                  <span className="text-purple-500 font-semibold">{receita.porcoes} porções</span>
-                </div>
+              {/* Visível APENAS no Mobile: Autor logo após a imagem */}
+              <div className="block md:hidden">
+                {autorEl}
+              </div>
 
-                {/* Publicado por */}
-                {receita.usuario && (
-                  <div className="bg-purple-50 rounded-lg p-4 mb-6 border border-purple-200">
-                    <p className="text-sm text-gray-600 mb-2">Publicado por</p>
-                    <Link
-                      to={`/perfil/${receita.usuario.id}`}
-                      className="flex items-center gap-3 hover:opacity-80 transition"
-                    >
-                    <img
-                      src= {`http://localhost:8000/uploads/perfil/perfil_${receita.usuario.id}.png`}
-                      alt={receita.usuario.nome}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                      <span className="font-semibold text-gray-800 hover:text-purple-700">{receita.usuario.nome}</span>
-                    </Link>
-                  </div>
-                )}
+              {/* Ingredientes (Padrão nos dois) */}
+              {ingredientesEl}
 
-                <h2 className="text-2xl font-semibold text-purple-700 mb-4">Modo de Preparo</h2>
-
-                <div className="max-h-80 overflow-y-auto mb-6 pr-2 border border-purple-100 rounded-lg p-4 bg-gray-50">
-                  <p className="text-gray-600 whitespace-pre-line">{receita.descricao}</p>
-                </div>
+              {/* Visível APENAS no Desktop: Categorias ficam no final da coluna esquerda */}
+              <div className="hidden md:block">
+                {categoriasEl}
               </div>
             </div>
+
+            {/* === COLUNA DIREITA === */}
+            <div className="flex flex-col md:gap-6">
+              
+              {/* Visível APENAS no Desktop: Título, Info e Autor ficam na direita */}
+              <div className="hidden md:block">
+                {tituloEInfoEl}
+                {autorEl}
+              </div>
+
+              {/* Modo de Preparo */}
+              <div className="mt-6 md:mt-0">
+                {preparoEl}
+              </div>
+
+              {/* Visível APENAS no Mobile: Categorias vão para o final da tela */}
+              <div className="block md:hidden mt-8">
+                {categoriasEl}
+              </div>
+            </div>
+
           </div>
+
         </div>
       </div>
     </div>

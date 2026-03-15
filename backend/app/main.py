@@ -4,6 +4,8 @@ from .core.dependencies import get_current_user
 from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -15,7 +17,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Configuração do CORS
 origins = [
-    "http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173" # endereço do seu frontend
+    "http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173", "http://192.168.18.103:5173" # endereço do seu frontend
 ]
 
 app.add_middleware(

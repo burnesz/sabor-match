@@ -1,6 +1,11 @@
-const API_URL = "http://localhost:8000/auth";
+const API_URL = import.meta.env.VITE_SABOR_MATCH_BACKEND + "/auth";
 
 export async function login(email, password) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    throw new Error("E-mail inválido, o e-mail deve conter '@' e um domínio. Ex: email@example.com");
+  }
   const response = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
