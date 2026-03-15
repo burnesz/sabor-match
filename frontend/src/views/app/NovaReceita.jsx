@@ -26,7 +26,7 @@ export default function NovaReceita() {
   return (
     <div className="min-h-screen w-screen bg-purple-50">
       <Header />
-
+      <div className="h-20"></div>
       <main className="pt-24 p-4 md:p-8 max-w-5xl mx-auto">
         <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
 
