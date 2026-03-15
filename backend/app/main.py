@@ -1,17 +1,14 @@
 from fastapi import FastAPI
-from .api import auth, receitas, uploads
-from .core.dependencies import get_current_user
-from fastapi import Depends
+from .api import auth, receitas, uploads, usuarios
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(receitas.router)
 app.include_router(uploads.router)
+app.include_router(usuarios.router)
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
