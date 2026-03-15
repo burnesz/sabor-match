@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { register } from "../../api/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [nome, setNome] = useState("");
@@ -7,12 +8,11 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
 
     if (password !== confirmPassword) {
       setError("As senhas não conferem.");
@@ -21,11 +21,9 @@ export default function Register() {
 
     try {
       await register(nome, email, password);
-      setSuccess("Usuário cadastrado com sucesso!");
-      setNome("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
+      
+      navigate('/login', { state: { tipo: "success", mensagem: "Usuário cadastrado com sucesso! Use suas credenciais para acessar." } })
+      
     } catch (err) {
       setError(err.message);
     }
@@ -131,11 +129,6 @@ export default function Register() {
             {error && (
               <div className="p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl text-sm font-medium text-center animate-fade-in">
                 {error}
-              </div>
-            )}
-            {success && (
-              <div className="p-3 bg-green-50 text-green-600 border border-green-100 rounded-xl text-sm font-medium text-center animate-fade-in">
-                {success}
               </div>
             )}
 

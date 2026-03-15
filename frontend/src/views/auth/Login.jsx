@@ -2,13 +2,16 @@ import { useState } from "react";
 import { login as apiLogin } from "../../api/auth";
 import { useAuth } from "../../context/AuthContext";
 import { validateToken } from "../../api/auth";
+import { useFlashMessage } from '../../hooks/app/useFlashMessage';
 
 export default function Login() {
+  useFlashMessage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const { login } = useAuth();
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();

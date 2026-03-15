@@ -4,6 +4,7 @@ import Header from "../../components/Header";
 import { obterReceita, verificarFavorita, favoritarReceita, desfavoritarReceita } from "../../api/receitas.js";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Avatar } from '../../components/Avatar.jsx';
 
 export default function VisualizarReceita() {
   const { id } = useParams();
@@ -14,6 +15,9 @@ export default function VisualizarReceita() {
   const [favoriting, setFavoriting] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const urlDaFoto = receita?.usuario?.id 
+    ? `${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${receita.usuario.id}.png` 
+    : '';
 
   useEffect(() => {
     const buscarReceita = async () => {
@@ -114,10 +118,10 @@ export default function VisualizarReceita() {
         to={user?.id === receita.usuario.id ? `/minha-conta` : `/perfil/${receita.usuario.id}`}
         className="flex items-center gap-3 hover:opacity-80 transition"
       >
-        <img
-          src={import.meta.env.VITE_SABOR_MATCH_BACKEND + "/uploads/perfil/perfil_" + receita.usuario.id + ".png"}
+        <Avatar
+          src={urlDaFoto}
           alt={receita.usuario.nome}
-          className="w-12 h-12 rounded-full object-cover shadow-sm border border-white"
+          className="border-4 border-purple-100 w-12 h-12 rounded-full object-cover shadow-sm border border-white"
         />
         <span className="font-semibold text-gray-800 hover:text-purple-700">
           {receita.usuario.nome}

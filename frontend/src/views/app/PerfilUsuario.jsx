@@ -1,36 +1,17 @@
-import React, { useEffect, useState } from 'react';
+// frontend/src/views/app/PerfilUsuario.jsx
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import Header from "../../components/Header";
 import ReceitaCard from "../../components/ReceitaCard";
+import { usePerfilUsuario } from "../../hooks/app/usePerfilUsuario";
+import { Avatar } from "../../components/Avatar";
 
 export default function PerfilUsuario() {
   const { usuario_id } = useParams();
-  const [perfil, setPerfil] = useState(null);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
-
-  useEffect(() => {
-    const buscarPerfil = async () => {
-      try {
-        const response = await fetch(
-          import.meta.env.VITE_SABOR_MATCH_BACKEND + "/receitas/usuario/" + usuario_id + "/perfil"
-        );
-        if (!response.ok) {
-          throw new Error("Usuário não encontrado");
-        }
-        const data = await response.json();
-        setPerfil(data);
-      } catch (error) {
-        console.error("Erro ao buscar perfil:", error);
-        setErro("Não foi possível carregar o perfil do usuário");
-      } finally {
-        setCarregando(false);
-      }
-    };
-
-    buscarPerfil();
-  }, [usuario_id]);
-
+  const { perfil, carregando, erro } = usePerfilUsuario(usuario_id);
+  const urlDaFoto = perfil?.usuario?.id 
+  ? `${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${perfil.usuario.id}.png` 
+  : '';
   if (carregando) {
     return (
       <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
@@ -71,11 +52,10 @@ export default function PerfilUsuario() {
         {/* Cabeçalho do Perfil */}
         <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
           <div className="flex items-center gap-6 mb-6">
-            <img
-              src= {import.meta.env.VITE_SABOR_MATCH_BACKEND + "/uploads/perfil/perfil_" + perfil.usuario.id + ".png"}
-              alt={perfil.usuario.nome}
-              className="w-24 h-24 rounded-full object-cover"
-            />
+          <Avatar 
+            src={urlDaFoto} 
+            alt={perfil.usuario.nome} 
+          />
             <div>
               <h1 className="text-4xl font-extrabold text-purple-700 mb-2">
                 {perfil.usuario.nome}
@@ -102,7 +82,8 @@ export default function PerfilUsuario() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {perfil.receitas.map((receita) => (
-                <ReceitaCard receita={receita} />
+                // Lembre-se sempre de passar a 'key' ao usar map em componentes React!
+                <ReceitaCard key={receita.id} receita={receita} />
               ))}
             </div>
           )}

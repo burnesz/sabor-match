@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Header from "../../components/Header";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
 import { listaReceitasCarrossel, listarReceitasFavoritas } from "../../api/receitas.js";
 import { useAuth } from "../../context/AuthContext";
 import { uploadImagemPerfil } from "../../api/uploads.js";
-import { Link } from 'react-router-dom';
 import { updateUser } from "../../api/auth.js";
 import ReceitaCard from "../../components/ReceitaCard.jsx";
+import { Avatar } from "../../components/Avatar.jsx";
 
 export default function MinhaConta() {
   const carrosselMinhasReceitasRef = useRef(null);
@@ -118,7 +118,7 @@ export default function MinhaConta() {
   };
 
   return (
-    <div className="h-full w-screen overflow-x-hidden bg-purple-50">
+    <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
       <Header />
       
       <main className="pt-24 pb-8 px-2 md:px-4 max-w-7xl mx-auto">
@@ -132,11 +132,11 @@ export default function MinhaConta() {
               <div className="relative group mb-4">
                 <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-purple-100 overflow-hidden relative shadow-inner">
                   {fotoPerfil && (
-                    <img 
-                      src={fotoPerfil} 
-                      alt="Foto de perfil" 
-                      className={`w-full h-full object-cover transition ${fazendoUpload ? 'opacity-50' : 'opacity-100'}`}
-                    />
+                  <Avatar 
+                    src={fotoPerfil} 
+                    alt={user.nome} 
+                    className={`w-full h-full object-cover transition ${fazendoUpload ? 'opacity-50' : 'opacity-100'}`}
+                  />
                   )}
                   {fazendoUpload && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm">

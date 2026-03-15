@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 // Configurações padrão para não repetir código
 const defaultOptions = {
   position: "top-right",
-  autoClose: 3000,
+  autoClose: 5000,
   hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: true,
