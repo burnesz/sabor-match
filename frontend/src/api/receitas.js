@@ -154,7 +154,7 @@ export async function buscarReceitas(termo, pagina = 1, tamanho = 10) {
 
   const response = await fetch(`${API_URL}/buscar/resultado?${params}`, {
     method: "GET",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" , "Authorization": `Bearer ${localStorage.getItem("token")}`},
   });
   if (!response.ok) {
     throw new Error("Erro ao buscar receitas");

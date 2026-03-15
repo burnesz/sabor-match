@@ -1,99 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Header from "../../components/Header";
 import { useSearchParams } from 'react-router-dom';
-import { buscarReceitas } from "../../api/receitas.js";
 import ReceitaCard from "../../components/ReceitaCard";
+import { useBuscarReceitas } from "../../hooks/app/useResultadosBusca.js";
 
 export default function ResultadosBusca() {
   const [searchParams] = useSearchParams();
   const termo = searchParams.get('q') || '';
-  const [receitas, setReceitas] = useState([]);
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [totalPaginas, setTotalPaginas] = useState(0);
-  const [totalItens, setTotalItens] = useState(0);
-  const [carregando, setCarregando] = useState(false);
-  const [erro, setErro] = useState(null);
 
-  const TAMANHO_PAGINA = 10;
-
-  useEffect(() => {
-    const buscar = async () => {
-      if (!termo || termo.trim().length < 2) {
-        setErro("Digite no mínimo 2 caracteres para buscar");
-        setReceitas([]);
-        setCarregando(false);
-        return;
-      }
-
-      try {
-        setCarregando(true);
-        setErro(null);
-
-        const resultado = await buscarReceitas(termo, paginaAtual, TAMANHO_PAGINA);
-
-        setReceitas(resultado.items);
-        setTotalPaginas(resultado.total_paginas);
-        setTotalItens(resultado.total_itens);
-      } catch (err) {
-        console.error("Erro ao buscar receitas:", err);
-        setErro("Erro ao buscar receitas");
-        setReceitas([]);
-      } finally {
-        setCarregando(false);
-      }
-    };
-
-    // Reset para página 1 quando o termo muda
-    setPaginaAtual(1);
-    buscar();
-  }, [termo]);
-
-  // Recarregar quando mudar de página
-  useEffect(() => {
-    if (!termo) return;
-
-    const buscar = async () => {
-      try {
-        setCarregando(true);
-        setErro(null);
-
-        const resultado = await buscarReceitas(termo, paginaAtual, TAMANHO_PAGINA);
-
-        setReceitas(resultado.items);
-        setTotalPaginas(resultado.total_paginas);
-        setTotalItens(resultado.total_itens);
-      } catch (err) {
-        console.error("Erro ao buscar receitas:", err);
-        setErro("Erro ao buscar receitas");
-      } finally {
-        setCarregando(false);
-      }
-    };
-
-    if (paginaAtual > 1) {
-      buscar();
-    }
-  }, [paginaAtual, termo]);
-
-  const handlePaginaAnterior = () => {
-    if (paginaAtual > 1) {
-      setPaginaAtual(paginaAtual - 1);
-      window.scrollTo(0, 0);
-    }
-  };
-
-  const handleProximaPagina = () => {
-    if (paginaAtual < totalPaginas) {
-      setPaginaAtual(paginaAtual + 1);
-      window.scrollTo(0, 0);
-    }
-  };
+  // Consumindo toda a regra de negócio do Hook
+  const {
+    receitas,
+    paginaAtual,
+    totalPaginas,
+    totalItens,
+    carregando,
+    erro,
+    handlePaginaAnterior,
+    handleProximaPagina
+  } = useBuscarReceitas(termo);
 
   return (
     <div className="min-h-screen w-screen bg-purple-50">
       <Header />
       <main className="pt-24 p-6 max-w-6xl mx-auto">
         <section className="mb-10">
+          
+          {/* --- Cabeçalho de Resultados --- */}
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-2xl font-semibold text-purple-700 mb-2">
@@ -107,6 +40,7 @@ export default function ResultadosBusca() {
             </div>
           </div>
 
+          {/* --- Estados da Interface --- */}
           {carregando && (
             <div className="flex justify-center py-12">
               <div className="text-gray-500 animate-pulse">
@@ -122,7 +56,7 @@ export default function ResultadosBusca() {
           )}
 
           {!carregando && !erro && receitas.length === 0 && termo !== '' && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center mt-6">
               <p className="text-blue-600 text-lg">
                 Nenhuma receita encontrada para "{termo}"
               </p>
@@ -132,23 +66,24 @@ export default function ResultadosBusca() {
             </div>
           )}
 
+          {/* --- Grid de Receitas e Paginação --- */}
           {!carregando && !erro && receitas.length > 0 && (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10 mt-6">
                 {receitas.map((r) => (
                   <ReceitaCard key={r.id} receita={r} />
                 ))}
               </div>
 
-              {/* Paginação */}
+              {/* Paginação (Só aparece se houver mais de 1 página) */}
               {totalPaginas > 1 && (
                 <div className="flex flex-col items-center gap-6 mt-10 mb-6">
                   <div className="flex items-center justify-center gap-4">
                     <button
                       onClick={handlePaginaAnterior}
-                      disabled={paginaAtual === 1 || carregando}
+                      disabled={paginaAtual === 1}
                       className={`px-6 py-2 rounded-lg font-medium transition ${
-                        paginaAtual === 1 || carregando
+                        paginaAtual === 1
                           ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-purple-600 text-white hover:bg-purple-700'
                       }`}
@@ -164,9 +99,9 @@ export default function ResultadosBusca() {
 
                     <button
                       onClick={handleProximaPagina}
-                      disabled={paginaAtual >= totalPaginas || carregando}
+                      disabled={paginaAtual >= totalPaginas}
                       className={`px-6 py-2 rounded-lg font-medium transition ${
-                        paginaAtual >= totalPaginas || carregando
+                        paginaAtual >= totalPaginas
                           ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-purple-600 text-white hover:bg-purple-700'
                       }`}
@@ -178,7 +113,7 @@ export default function ResultadosBusca() {
                   {/* Indicador visual de progresso */}
                   <div className="w-full max-w-xs bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-purple-600 h-2 rounded-full transition-all"
+                      className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${(paginaAtual / totalPaginas) * 100}%` }}
                     ></div>
                   </div>

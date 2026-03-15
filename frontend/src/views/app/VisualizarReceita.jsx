@@ -1,61 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+// frontend/src/views/app/VisualizarReceita.jsx
+import React from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from "../../components/Header";
-import { obterReceita, verificarFavorita, favoritarReceita, desfavoritarReceita } from "../../api/receitas.js";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { Avatar } from '../../components/Avatar.jsx';
+import { useVisualizarReceita } from "../../hooks/app/useVisualizarReceita";
 
 export default function VisualizarReceita() {
   const { id } = useParams();
-  const [receita, setReceita] = useState(null);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [favoriting, setFavoriting] = useState(false);
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const urlDaFoto = receita?.usuario?.id 
-    ? `${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${receita.usuario.id}.png` 
-    : '';
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const buscarReceita = async () => {
-      try {
-        const [dataReceita, dataFavorita] = await Promise.all([
-          obterReceita(id),
-          verificarFavorita(id)
-        ]);
-        setReceita(dataReceita);
-        setIsFavorited(dataFavorita.favoritada);
-      } catch (error) {
-        console.error("Erro na requisição:", error);
-        setErro("Não foi possível carregar a receita.");
-      } finally {
-        setCarregando(false);
-      }
-    };
+  // Consumindo toda a regra de negócio do nosso novo Hook!
+  const { 
+    receita, 
+    carregando, 
+    erro, 
+    isFavorited, 
+    favoriting, 
+    toggleFavorite 
+  } = useVisualizarReceita(id);
 
-    buscarReceita();
-  }, [id]);
-
-  const toggleFavorite = async () => {
-    try {
-      setFavoriting(true);
-      if (isFavorited) {
-        await desfavoritarReceita(id);
-        setIsFavorited(false);
-      } else {
-        await favoritarReceita(id);
-        setIsFavorited(true);
-      }
-    } catch (error) {
-      console.error("Erro ao alterar favorito:", error);
-    } finally {
-      setFavoriting(false);
-    }
-  };
-
+  // Early returns para loading e erro
   if (carregando) {
     return (
       <div className="min-h-screen w-screen overflow-x-hidden bg-purple-50 flex flex-col">
@@ -78,9 +44,17 @@ export default function VisualizarReceita() {
     );
   }
 
+  // Lógica de UI (cálculo de URL da imagem de perfil)
+  const urlDaFoto = receita?.usuario?.id 
+    ? `${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${receita.usuario.id}.png` 
+    : '';
+
+  // ==========================================
+  // BLOCOS DE INTERFACE (Renderização Modular)
+  // ==========================================
   const imagemEl = receita.imagem_path && (
     <img
-      src={import.meta.env.VITE_SABOR_MATCH_BACKEND + "/uploads/receitas/" + receita.imagem_path}
+      src={`${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/receitas/${receita.imagem_path}`}
       alt={receita.titulo}
       className="w-full h-64 md:h-80 object-cover mb-4 rounded-xl shadow-sm"
     />
@@ -168,11 +142,12 @@ export default function VisualizarReceita() {
     </div>
   );
 
-  // --- 2. Renderização Responsiva ---
+  // ==========================================
+  // RENDERIZAÇÃO RESPONSIVA PRINCIPAL
+  // ==========================================
   return (
     <div className="min-h-screen w-screen overflow-x-hidden bg-purple-50 flex flex-col">
       <Header />
-      {/* Trocamos p-4 e sm:p-6 por px e pb, deixando o pt-24 intacto */}
       <div className="pt-24 px-4 pb-4 sm:px-6 sm:pb-6 flex-1 max-w-6xl w-full mx-auto">
         <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
           
@@ -180,47 +155,21 @@ export default function VisualizarReceita() {
             
             {/* === COLUNA ESQUERDA === */}
             <div className="flex flex-col gap-6">
-              
-              {/* Visível APENAS no Mobile: Título e Info vão pro topo */}
-              <div className="block md:hidden">
-                {tituloEInfoEl}
-              </div>
-
-              {/* Imagem (Fica no lugar natural na coluna esquerda pro Desktop, mas encaixa perfeito depois do título no Mobile) */}
+              <div className="block md:hidden">{tituloEInfoEl}</div>
               {imagemEl}
-
-              {/* Visível APENAS no Mobile: Autor logo após a imagem */}
-              <div className="block md:hidden">
-                {autorEl}
-              </div>
-
-              {/* Ingredientes (Padrão nos dois) */}
+              <div className="block md:hidden">{autorEl}</div>
               {ingredientesEl}
-
-              {/* Visível APENAS no Desktop: Categorias ficam no final da coluna esquerda */}
-              <div className="hidden md:block">
-                {categoriasEl}
-              </div>
+              <div className="hidden md:block">{categoriasEl}</div>
             </div>
 
             {/* === COLUNA DIREITA === */}
             <div className="flex flex-col md:gap-6">
-              
-              {/* Visível APENAS no Desktop: Título, Info e Autor ficam na direita */}
               <div className="hidden md:block">
                 {tituloEInfoEl}
                 {autorEl}
               </div>
-
-              {/* Modo de Preparo */}
-              <div className="mt-6 md:mt-0">
-                {preparoEl}
-              </div>
-
-              {/* Visível APENAS no Mobile: Categorias vão para o final da tela */}
-              <div className="block md:hidden mt-8">
-                {categoriasEl}
-              </div>
+              <div className="mt-6 md:mt-0">{preparoEl}</div>
+              <div className="block md:hidden mt-8">{categoriasEl}</div>
             </div>
 
           </div>

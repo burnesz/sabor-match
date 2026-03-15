@@ -1,62 +1,37 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import Header from "../../components/Header";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
-import { listaReceitasCarrossel, listarReceitasFavoritas } from "../../api/receitas.js";
 import { useAuth } from "../../context/AuthContext";
-import { uploadImagemPerfil } from "../../api/uploads.js";
-import { updateUser } from "../../api/auth.js";
 import ReceitaCard from "../../components/ReceitaCard.jsx";
 import { Avatar } from "../../components/Avatar.jsx";
+import { useMinhasReceitas } from "../../hooks/app/useMinhasReceitas";
+import { useGerenciarPerfil } from "../../hooks/app/useGerenciarPerfil";
 
 export default function MinhaConta() {
+  const { user, setUser } = useAuth();
+
+  // Consumindo os hooks de regras de negócio
+  const { minhasReceitas, receitasFavoritas, carregando, erro } = useMinhasReceitas(user);
+  const {
+    fileInputRef, fotoPerfil, fazendoUpload, showModal, setShowModal,
+    formData, setFormData, updating, dispararEscolhaDeArquivo,
+    handleUploadImagem, handleUpdateUser
+  } = useGerenciarPerfil(user, setUser);
+
+  // Refs e funções exclusivas de UI (Interface)
   const carrosselMinhasReceitasRef = useRef(null);
   const carrosselReceitasSalvasRef = useRef(null);
-  const [minhasReceitas, setMinhasReceitas] = useState([]);
-  const [receitasFavoritas, setReceitasFavoritas] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
-  const { user, setUser } = useAuth();
-  const fileInputRef = useRef(null);
-  const [fotoPerfil, setFotoPerfil] = useState('');
-  const [fazendoUpload, setFazendoUpload] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ nome: '', email: '' });
-  const [updating, setUpdating] = useState(false);
 
-  // 1º Hook: Atualiza a foto de perfil e os dados do form quando o user carregar
-  useEffect(() => {
-    if (user) {
-      setFotoPerfil(`${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${user.id}.png`);
-      setFormData({ nome: user.nome, email: user.email });
-    }
-  }, [user]);
+  const rolarEsquerda = (ref) => {
+    if (ref.current) ref.current.scrollBy({ left: -300, behavior: "smooth" });
+  };
 
-  useEffect(() => {
-    const buscarReceitas = async () => {
-      try {
-        setCarregando(true); // Garante o status de carregamento
-        const [dataMinhas, dataFavoritas] = await Promise.all([
-          listaReceitasCarrossel(),
-          listarReceitasFavoritas()
-        ]);
-        setMinhasReceitas(dataMinhas);
-        setReceitasFavoritas(dataFavoritas);
-      } catch (error) {
-        console.error("Erro na requisição:", error);
-        setErro("Não foi possível carregar suas receitas.");
-      } finally {
-        setCarregando(false);
-      }
-    };
+  const rolarDireita = (ref) => {
+    if (ref.current) ref.current.scrollBy({ left: 300, behavior: "smooth" });
+  };
 
-    // Só dispara a API se o usuário já estiver disponível no contexto
-    if (user) {
-      buscarReceitas();
-    }
-  }, [user]); // Agora ele depende de 'user' para rodar no momento certo
-
-  // REGRA DE OURO: Retornos antecipados (early returns) SEMPRE vêm DEPOIS de todos os Hooks
+  // Early return de carregamento
   if (!user) {
     return (
       <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
@@ -68,61 +43,11 @@ export default function MinhaConta() {
     );
   }
 
-  const dispararEscolhaDeArquivo = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleUploadImagem = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const previewUrl = URL.createObjectURL(file);
-    setFotoPerfil(previewUrl);
-  
-    try {
-      setFazendoUpload(true);
-      const response = await uploadImagemPerfil(file);
-      console.log("Upload bem-sucedido:", response);
-    } catch (error) {
-      console.error("Erro no upload:", error);
-    } finally {
-      setFazendoUpload(false);
-    }
-  }
-
-  const handleUpdateUser = async () => {
-    try {
-      setUpdating(true);
-      const updatedUser = await updateUser(formData);
-      setUser(updatedUser); 
-      setShowModal(false);
-    } catch (error) {
-      console.error("Erro ao atualizar:", error);
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  const rolarEsquerda = (ref) => {
-    if (ref.current) {
-      ref.current.scrollBy({ left: -300, behavior: "smooth" }); 
-    }
-  };
-
-  const rolarDireita = (ref) => {
-    if (ref.current) {
-      ref.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
-  };
-
   return (
     <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
       <Header />
       
       <main className="pt-24 pb-8 px-2 md:px-4 max-w-7xl mx-auto">
-        {/* Container Principal: Cartão Branco */}
         <div className="sm:bg-white sm:rounded-2xl shadow-sm sm:shadow-lg overflow-hidden flex flex-col md:flex-row">
           
           {/* --- COLUNA DA ESQUERDA: PERFIL --- */}
@@ -198,9 +123,7 @@ export default function MinhaConta() {
                     onClick={() => rolarEsquerda(carrosselMinhasReceitasRef)}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md text-purple-700 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
                     aria-label="Rolar para a esquerda"
-                  >
-                    ◀ 
-                  </button>
+                  >◀</button>
 
                   <div 
                     ref={carrosselMinhasReceitasRef}
@@ -215,9 +138,7 @@ export default function MinhaConta() {
                     onClick={() => rolarDireita(carrosselMinhasReceitasRef)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md text-purple-700 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
                     aria-label="Rolar para a direita"
-                  >
-                    ▶
-                  </button>
+                  >▶</button>
                 </div>
               )}
             </section>
@@ -240,9 +161,7 @@ export default function MinhaConta() {
                     onClick={() => rolarEsquerda(carrosselReceitasSalvasRef)}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md text-purple-700 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
                     aria-label="Rolar para a esquerda"
-                  >
-                    ◀ 
-                  </button>
+                  >◀</button>
 
                   <div 
                     ref={carrosselReceitasSalvasRef}
@@ -257,9 +176,7 @@ export default function MinhaConta() {
                     onClick={() => rolarDireita(carrosselReceitasSalvasRef)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md text-purple-700 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
                     aria-label="Rolar para a direita"
-                  >
-                    ▶
-                  </button>
+                  >▶</button>
                 </div>
               )}
             </section>
@@ -268,7 +185,6 @@ export default function MinhaConta() {
       </main>
 
       {/* --- MODAL --- */}
-      {/* Movido para a raiz do componente para evitar bugs de z-index com o overflow dos carrosséis */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] px-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl animate-fade-in">
