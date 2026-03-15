@@ -89,10 +89,6 @@ export default function Login() {
                 <label className="block text-sm font-semibold text-gray-800">
                   Senha
                 </label>
-                {/* Link placeholder para "Esqueceu a senha" */}
-                <a href="#" className="text-sm text-purple-600 hover:text-purple-700 font-medium hover:underline transition">
-                  Esqueceu a senha?
-                </a>
               </div>
               <input
                 type="password"
