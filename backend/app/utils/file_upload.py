@@ -13,7 +13,7 @@ def salvar_imagem(diretorio: str, imagem: UploadFile, usuario_id: Optional[int] 
     
     if usuario_id is not None:
         # Se recebeu o ID, é foto de perfil. Renomeia com o ID do usuário.
-        nome_arquivo = f"perfil_{usuario_id}.{ext}"
+        nome_arquivo = f"perfil_{usuario_id}.png"
     else:
         # Se NÃO recebeu o ID, é uma imagem genérica (ex: receita).
         # Gera um UUID único para evitar que fotos com o mesmo nome se sobrescrevam.
