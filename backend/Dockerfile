@@ -12,4 +12,3 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 # Copiar código
 COPY . .
-
