@@ -13,7 +13,7 @@ export function useGerenciarPerfil(user, setUser) {
   // Atualiza os dados iniciais quando o objeto user for carregado
   useEffect(() => {
     if (user) {
-      setFotoPerfil(`${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${user.id}.png`);
+      setFotoPerfil(`${import.meta.env.VITE_SABOR_MATCH_API}/uploads/perfil/perfil_${user.id}.png`);
       setFormData({ nome: user.nome, email: user.email });
     }
   }, [user]);

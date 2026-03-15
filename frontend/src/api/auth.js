@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_SABOR_MATCH_BACKEND + "/auth";
+const API_URL = import.meta.env.VITE_SABOR_MATCH_API + "/auth";
 
 export async function login(email, password) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

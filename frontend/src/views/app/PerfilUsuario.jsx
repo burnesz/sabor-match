@@ -10,7 +10,7 @@ export default function PerfilUsuario() {
   const { usuario_id } = useParams();
   const { perfil, carregando, erro } = usePerfilUsuario(usuario_id);
   const urlDaFoto = perfil?.usuario?.id 
-  ? `${import.meta.env.VITE_SABOR_MATCH_BACKEND}/uploads/perfil/perfil_${perfil.usuario.id}.png` 
+  ? `${import.meta.env.VITE_SABOR_MATCH_API}/uploads/perfil/perfil_${perfil.usuario.id}.png` 
   : '';
   if (carregando) {
     return (

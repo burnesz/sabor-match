@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_SABOR_MATCH_BACKEND + "/usuarios";
+const API_URL = import.meta.env.VITE_SABOR_MATCH_API + "/usuarios";
 
 export const buscarPerfilUsuario = async (usuario_id) => {
   const response = await fetch(`${API_URL}/${usuario_id}/perfil`,

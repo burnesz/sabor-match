@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_SABOR_MATCH_BACKEND + "/uploads";
+const API_URL = import.meta.env.VITE_SABOR_MATCH_API + "/uploads";
 
 export async function uploadImagemReceita(imagem) {
   const token = localStorage.getItem("token");
