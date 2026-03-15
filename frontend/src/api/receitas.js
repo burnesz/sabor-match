@@ -106,7 +106,10 @@ export async function desfavoritarReceita(id) {
 export async function listaReceitasRecentes() {
   const response = await fetch(`${API_URL}/recentes`, {
     method: "GET",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json", 
+      "Authorization": `Bearer ${localStorage.getItem("token")}` 
+    },
   });
   if (!response.ok) {
     throw new Error("Erro ao listar receitas recentes");
