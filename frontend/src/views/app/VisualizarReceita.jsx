@@ -92,12 +92,12 @@ export default function VisualizarReceita() {
         disabled={favoriting}
         className={`absolute -top-2 -right-2 p-3 rounded-full transition shadow-md ${
           isFavorited
-            ? 'bg-red-500 text-white hover:bg-red-600'
-            : 'bg-white text-gray-700 hover:bg-gray-100'
+            ? 'bg-purple-800 text-white hover:bg-purple-700 hover:-translate-y-1 transition'
+            : 'bg-white text-gray-700 hover:bg-gray-100 hover:-translate-y-1 transition'
         } disabled:opacity-50`}
         title={isFavorited ? 'Desfavoritar' : 'Favoritar'}
       >
-        {favoriting ? '...' : isFavorited ? '❤️' : '🤍'}
+        {favoriting ? '...' : isFavorited ? '💜' : '🤍'}
       </button>
       <div className="flex items-center gap-3 flex-wrap mb-6">
         <span className="text-purple-500 font-semibold">{receita.tempo_minutos} min</span>

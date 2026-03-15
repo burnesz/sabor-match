@@ -35,39 +35,166 @@ def criar_receita(receita: ReceitaCreate, db: Session = Depends(get_db), current
         raise HTTPException(status_code=500, detail="Erro ao criar a receita")
     return db_receita
 
-@router.get("/minhas-receitas/carrossel", response_model=List[ReceitaCarrossel], status_code=200)
+@router.get("/minhas-receitas/carrossel", response_model=List[ReceitaResponse], status_code=200)
 def listar_receitas_carrossel(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)
 ):
     # Fixamos o limite em 10 diretamente no backend
-    db_receitas = get_receitas_recentes_usuario(db=db, usuario_id=current_user.id, limite=10)
-    
-    return db_receitas
+    receitas = get_receitas_recentes_usuario(db=db, usuario_id=current_user.id, limite=10)
+    response = []
+    for receita in receitas:
+        ingredientes = [
+            {
+                "nome": ri.ingrediente.nome,
+                "quantidade": ri.quantidade,
+                "unidade": ri.unidade
+            }
+            for ri in receita.ingredientes_link
+        ]
 
-@router.get("/recentes", response_model=List[ReceitaCarrossel], status_code=200)
+        # Build categorias list (nomes)
+        categorias = [cat.nome for cat in receita.categorias]
+
+        # Build usuario data
+        usuario_data = {
+            "id": receita.user.id,
+            "nome": receita.user.nome
+        }
+        response.append(ReceitaResponse(
+                            id=receita.id,
+                            usuario_id=receita.usuario_id,
+                            usuario=usuario_data,
+                            titulo=receita.titulo,
+                            descricao=receita.descricao,
+                            tempo_minutos=receita.tempo_minutos,
+                            porcoes=receita.porcoes,
+                            imagem_path=receita.imagem_path,
+                            ingredientes=ingredientes,
+                            categorias=categorias
+                        )
+        )
+    return response
+
+@router.get("/recentes", response_model=List[ReceitaResponse], status_code=200)
 def listar_receitas_recentes_globais(
     db: Session = Depends(get_db)
 ):
-    db_receitas = get_receitas_recentes_globais(db=db, limite=10)
-    return db_receitas
+    response = []
+    receitas = get_receitas_recentes_globais(db=db, limite=10)
+    
+    for receita in receitas:
+        ingredientes = [
+            {
+                "nome": ri.ingrediente.nome,
+                "quantidade": ri.quantidade,
+                "unidade": ri.unidade
+            }
+            for ri in receita.ingredientes_link
+        ]
 
-@router.get("/recomendadas", response_model=List[ReceitaCarrossel], status_code=200)
+        # Build categorias list (nomes)
+        categorias = [cat.nome for cat in receita.categorias]
+
+        # Build usuario data
+        usuario_data = {
+            "id": receita.user.id,
+            "nome": receita.user.nome
+        }
+        response.append(ReceitaResponse(
+                            id=receita.id,
+                            usuario_id=receita.usuario_id,
+                            usuario=usuario_data,
+                            titulo=receita.titulo,
+                            descricao=receita.descricao,
+                            tempo_minutos=receita.tempo_minutos,
+                            porcoes=receita.porcoes,
+                            imagem_path=receita.imagem_path,
+                            ingredientes=ingredientes,
+                            categorias=categorias
+                        )
+        )
+    return response
+ 
+@router.get("/recomendadas", response_model=List[ReceitaResponse], status_code=200)
 def listar_receitas_recomendadas(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)
 ):
-    db_receitas = get_recomendacoes_por_categoria_usuario(db=db, usuario_id=current_user.id, limite=10)
-    return db_receitas
+    receitas = get_recomendacoes_por_categoria_usuario(db=db, usuario_id=current_user.id, limite=10)
+    response = []
+    for receita in receitas:
+        ingredientes = [
+            {
+                "nome": ri.ingrediente.nome,
+                "quantidade": ri.quantidade,
+                "unidade": ri.unidade
+            }
+            for ri in receita.ingredientes_link
+        ]
 
-@router.get("/receitas-favoritas", response_model=List[ReceitaCarrossel], status_code=200)
+        # Build categorias list (nomes)
+        categorias = [cat.nome for cat in receita.categorias]
+
+        # Build usuario data
+        usuario_data = {
+            "id": receita.user.id,
+            "nome": receita.user.nome
+        }
+        response.append(ReceitaResponse(
+                            id=receita.id,
+                            usuario_id=receita.usuario_id,
+                            usuario=usuario_data,
+                            titulo=receita.titulo,
+                            descricao=receita.descricao,
+                            tempo_minutos=receita.tempo_minutos,
+                            porcoes=receita.porcoes,
+                            imagem_path=receita.imagem_path,
+                            ingredientes=ingredientes,
+                            categorias=categorias
+                        )
+        )
+    return response
+
+@router.get("/receitas-favoritas", response_model=List[ReceitaResponse], status_code=200)
 def listar_receitas_favoritas(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)
 ):
-    db_receitas = get_receitas_favoritas_usuario(db=db, usuario_id=current_user.id, limite=10)
-    
-    return db_receitas
+    receitas = get_receitas_favoritas_usuario(db=db, usuario_id=current_user.id, limite=10)
+    response = []
+    for receita in receitas:
+        ingredientes = [
+            {
+                "nome": ri.ingrediente.nome,
+                "quantidade": ri.quantidade,
+                "unidade": ri.unidade
+            }
+            for ri in receita.ingredientes_link
+        ]
+
+        # Build categorias list (nomes)
+        categorias = [cat.nome for cat in receita.categorias]
+
+        # Build usuario data
+        usuario_data = {
+            "id": receita.user.id,
+            "nome": receita.user.nome
+        }
+        response.append(ReceitaResponse(
+                            id=receita.id,
+                            usuario_id=receita.usuario_id,
+                            usuario=usuario_data,
+                            titulo=receita.titulo,
+                            descricao=receita.descricao,
+                            tempo_minutos=receita.tempo_minutos,
+                            porcoes=receita.porcoes,
+                            imagem_path=receita.imagem_path,
+                            ingredientes=ingredientes,
+                            categorias=categorias
+                        )
+        )
+    return response
 
 @router.post("/{receita_id}/favoritar", status_code=201)
 def favoritar_receita(receita_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -173,20 +300,6 @@ def buscar_receitas_endpoint(
         tamanho_pagina=tamanho_pagina
     )
 
-@router.get("/usuario/{usuario_id}/receitas", response_model=List[ReceitaCarrossel], status_code=200)
-def listar_receitas_usuario(
-    usuario_id: int,
-    db: Session = Depends(get_db)
-):
-    db_receitas = (
-        db.query(Receita)
-        .filter(Receita.usuario_id == usuario_id)
-        .order_by(Receita.id.desc())
-        .limit(20)
-        .all()
-    )
-    return db_receitas
-
 @router.get("/usuario/{usuario_id}/perfil")
 def obter_perfil_usuario(
     usuario_id: int,
@@ -196,13 +309,44 @@ def obter_perfil_usuario(
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
-    receitas = (
+    db_receitas = (
         db.query(Receita)
         .filter(Receita.usuario_id == usuario_id)
         .order_by(Receita.id.desc())
         .all()
     )
+    receitas = []
+    for receita in db_receitas:
+        ingredientes = [
+            {
+                "nome": ri.ingrediente.nome,
+                "quantidade": ri.quantidade,
+                "unidade": ri.unidade
+            }
+            for ri in receita.ingredientes_link
+        ]
 
+        # Build categorias list (nomes)
+        categorias = [cat.nome for cat in receita.categorias]
+
+        # Build usuario data
+        usuario_data = {
+            "id": receita.user.id,
+            "nome": receita.user.nome
+        }
+        receitas.append(ReceitaResponse(
+                            id=receita.id,
+                            usuario_id=receita.usuario_id,
+                            usuario=usuario_data,
+                            titulo=receita.titulo,
+                            descricao=receita.descricao,
+                            tempo_minutos=receita.tempo_minutos,
+                            porcoes=receita.porcoes,
+                            imagem_path=receita.imagem_path,
+                            ingredientes=ingredientes,
+                            categorias=categorias
+                        )
+        )
     return {
         "usuario": {
             "id": usuario.id,
