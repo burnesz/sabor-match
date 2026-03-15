@@ -40,7 +40,7 @@ def listar_receitas_carrossel(db: Session = Depends(get_db), current_user: User 
     return [_formatar_receita(r) for r in receitas]
 
 @router.get("/recentes", response_model=List[ReceitaResponse], status_code=200)
-def listar_receitas_recentes_globais(db: Session = Depends(get_db)):
+def listar_receitas_recentes_globais(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     receitas = get_receitas_recentes_globais(db=db, limite=10)
     return [_formatar_receita(r) for r in receitas]
  
@@ -92,7 +92,7 @@ def verificar_favorita(receita_id: int, db: Session = Depends(get_db), current_u
     return {"favoritada": favorita is not None}
 
 @router.get("/buscar/resultado", response_model=BuscaPaginada, status_code=200)
-def buscar_receitas_endpoint(q: str, pagina: int = 1, tamanho_pagina: int = 10, db: Session = Depends(get_db)):
+def buscar_receitas_endpoint(q: str, pagina: int = 1, tamanho_pagina: int = 10, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if not q or len(q.strip()) < 2:
         raise HTTPException(status_code=400, detail="Termo de busca deve ter pelo menos 2 caracteres")
 
