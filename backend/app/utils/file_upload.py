@@ -34,7 +34,7 @@ def salvar_imagem(diretorio: str, imagem: UploadFile, usuario_id: Optional[int] 
     with open(caminho, "wb") as f:
         shutil.copyfileobj(imagem.file, f)
 
-    return caminho
+    return nome_arquivo
 
 def deletar_imagem(path: str):
     if os.path.exists(path):
