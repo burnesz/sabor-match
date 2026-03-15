@@ -11,7 +11,7 @@ const ReceitaCard = ({ receita }) => {
     >
       <div className="relative h-40 bg-gray-200 overflow-hidden">
         <img
-          src={import.meta.env.VITE_SABOR_MATCH_BACKEND + receita.imagem_path}
+          src={import.meta.env.VITE_SABOR_MATCH_BACKEND + "/uploads/receitas/" + receita.imagem_path}
           alt={receita.titulo}
           className="w-full h-full object-cover hover:scale-105 transition duration-300"
         />

@@ -7,7 +7,7 @@ router = APIRouter(prefix="/uploads", tags=["Uploads"])
 
 @router.post("/nova-receita-imagem")
 def upload_imagem_receita(imagem: UploadFile = File(...), current_user: str = Depends(get_current_user)):
-    imagem_path = salvar_imagem("/uploads/receitas", imagem)
+    imagem_path = salvar_imagem("receitas", imagem)
     
     if not imagem_path:
         raise HTTPException(status_code=500, detail="Erro ao salvar a imagem")
@@ -16,7 +16,7 @@ def upload_imagem_receita(imagem: UploadFile = File(...), current_user: str = De
 
 @router.post("/perfil-imagem")
 def upload_imagem_perfil(imagem: UploadFile = File(...), current_user: str = Depends(get_current_user)):
-    imagem_path = salvar_imagem("/uploads/perfil", imagem, current_user.id)
+    imagem_path = salvar_imagem("perfil", imagem, current_user.id)
     
     if not imagem_path:
         raise HTTPException(status_code=500, detail="Erro ao salvar a imagem")

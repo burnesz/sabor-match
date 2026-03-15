@@ -76,7 +76,7 @@ export default function VisualizarReceita() {
 
   const imagemEl = receita.imagem_path && (
     <img
-      src={import.meta.env.VITE_SABOR_MATCH_BACKEND + receita.imagem_path}
+      src={import.meta.env.VITE_SABOR_MATCH_BACKEND + "/uploads/receitas/" + receita.imagem_path}
       alt={receita.titulo}
       className="w-full h-64 md:h-80 object-cover mb-4 rounded-xl shadow-sm"
     />

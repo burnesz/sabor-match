@@ -5,7 +5,6 @@ import uuid
 from fastapi import UploadFile
 
 UPLOAD_DIR = "uploads/"
-
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 def salvar_imagem(diretorio: str, imagem: UploadFile, usuario_id: Optional[int] = None) -> str:
@@ -21,9 +20,8 @@ def salvar_imagem(diretorio: str, imagem: UploadFile, usuario_id: Optional[int] 
         nome_arquivo = f"{uuid.uuid4()}.{ext}"
     
     # Cria a pasta caso ela ainda não exista no sistema
-    os.makedirs(diretorio, exist_ok=True)
-    
-    caminho = os.path.join(diretorio, nome_arquivo)
+    os.makedirs(os.path.join(UPLOAD_DIR, diretorio), exist_ok=True)
+    caminho = os.path.join(UPLOAD_DIR, diretorio, nome_arquivo)
 
     # Salva o arquivo em disco
     with open(caminho, "wb") as f:
