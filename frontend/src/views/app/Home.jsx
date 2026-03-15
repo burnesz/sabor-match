@@ -68,10 +68,10 @@ export default function Home() {
   return (
     <div className="min-h-screen w-screen bg-purple-50">
       <Header />
-      <main className="p-6 max-w-6xl mx-auto">
+      <main className="pt-24 max-w-6xl mx-auto">
         <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
           {/* Receitas */}
-          <section className="mb-10">
+          <section className="w-full max-w-full min-w-0 mb-10">
             <h2 className="text-xl font-semibold text-purple-700 mb-4">Receitas Recentes</h2>
             {carregando && <p className="text-gray-500">Carregando...</p>}
             {erro && <p className="text-red-500 mb-4">{erro}</p>}

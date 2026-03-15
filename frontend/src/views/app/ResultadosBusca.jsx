@@ -92,7 +92,7 @@ export default function ResultadosBusca() {
   return (
     <div className="min-h-screen w-screen bg-purple-50">
       <Header />
-      <main className="p-6 max-w-6xl mx-auto">
+      <main className="pt-24 p-6 max-w-6xl mx-auto">
         <section className="mb-10">
           <div className="flex justify-between items-center mb-6">
             <div>

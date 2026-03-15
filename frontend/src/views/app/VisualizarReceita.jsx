@@ -168,7 +168,8 @@ export default function VisualizarReceita() {
   return (
     <div className="min-h-screen w-screen overflow-x-hidden bg-purple-50 flex flex-col">
       <Header />
-      <div className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6">
+      {/* Trocamos p-4 e sm:p-6 por px e pb, deixando o pt-24 intacto */}
+      <div className="pt-24 px-4 pb-4 sm:px-6 sm:pb-6 flex-1 max-w-6xl w-full mx-auto">
         <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
           
           <div className="flex flex-col md:grid md:grid-cols-2 gap-8">

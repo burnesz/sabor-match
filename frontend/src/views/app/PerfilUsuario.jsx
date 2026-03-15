@@ -67,7 +67,7 @@ export default function PerfilUsuario() {
   return (
     <div className="h-screen w-screen overflow-x-hidden bg-purple-50">
       <Header />
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="pt-24 max-w-6xl mx-auto p-6">
         {/* Cabeçalho do Perfil */}
         <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
           <div className="flex items-center gap-6 mb-6">

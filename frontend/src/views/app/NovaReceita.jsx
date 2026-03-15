@@ -28,7 +28,7 @@ export default function NovaReceita() {
     <div className="min-h-screen w-screen bg-purple-50">
       <Header />
 
-      <main className="p-4 md:p-8 max-w-5xl mx-auto">
+      <main className="pt-24 p-4 md:p-8 max-w-5xl mx-auto">
         <div className="p-4 sm:p-8 sm:bg-white sm:rounded-2xl sm:shadow-lg mb-8">
 
           <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-10">
