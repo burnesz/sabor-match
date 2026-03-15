@@ -3,9 +3,16 @@ import shutil
 from typing import Optional
 import uuid
 from fastapi import UploadFile
+from pathlib import Path
 
-UPLOAD_DIR = "uploads/"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# Volta 3 pastas: utils -> app -> backend
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Junta com a pasta uploads: .../backend/uploads
+UPLOAD_DIR = BASE_DIR / "uploads"
+
+# Cria a pasta principal caso não exista
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 def salvar_imagem(diretorio: str, imagem: UploadFile, usuario_id: Optional[int] = None) -> str:
     # Pega a extensão da imagem (ex: jpg, png)

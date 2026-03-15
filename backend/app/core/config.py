@@ -4,7 +4,6 @@ from pydantic import PostgresDsn
 
 class Settings(BaseSettings):
     ENVIRONMENT: str = "local"
-
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
