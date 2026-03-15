@@ -34,17 +34,8 @@ class ReceitaResponse(ReceitaBase):
     class Config:
         from_attributes = True
 
-class ReceitaCarrossel(BaseModel):
-    id: int
-    titulo: str
-    tempo_minutos: int
-    imagem_path: Optional[str] = None
-
-    class Config:
-        from_attributes = True
-
 class BuscaPaginada(BaseModel):
-    items: List[ReceitaCarrossel]
+    items: List[ReceitaResponse]
     total_itens: int
     total_paginas: int
     pagina_atual: int

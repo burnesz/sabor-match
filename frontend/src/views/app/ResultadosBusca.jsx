@@ -7,7 +7,6 @@ import ReceitaCard from "../../components/ReceitaCard";
 export default function ResultadosBusca() {
   const [searchParams] = useSearchParams();
   const termo = searchParams.get('q') || '';
-
   const [receitas, setReceitas] = useState([]);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(0);

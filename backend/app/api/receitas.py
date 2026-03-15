@@ -5,7 +5,7 @@ from app.models.categoria import Categoria
 from app.models.receita import Receita
 from app.models.associacoes import ReceitaFavorita
 from app.models.user import User
-from ..schemas.receita import ReceitaCreate, ReceitaResponse, ReceitaCarrossel, BuscaPaginada
+from ..schemas.receita import ReceitaCreate, ReceitaResponse, BuscaPaginada
 from ..db.session import get_db
 from sqlalchemy.orm import Session
 from ..services.receita import (
@@ -291,9 +291,42 @@ def buscar_receitas_endpoint(
     db_receitas, total_itens = buscar_receitas(db=db, termo=q, pagina=pagina, tamanho_pagina=tamanho_pagina)
 
     total_paginas = (total_itens + tamanho_pagina - 1) // tamanho_pagina
+    
+    receitas = []
+    for receita in db_receitas:
+        ingredientes = [
+            {
+                "nome": ri.ingrediente.nome,
+                "quantidade": ri.quantidade,
+                "unidade": ri.unidade
+            }
+            for ri in receita.ingredientes_link
+        ]
+
+        # Build categorias list (nomes)
+        categorias = [cat.nome for cat in receita.categorias]
+
+        # Build usuario data
+        usuario_data = {
+            "id": receita.user.id,
+            "nome": receita.user.nome
+        }
+        receitas.append(ReceitaResponse(
+                            id=receita.id,
+                            usuario_id=receita.usuario_id,
+                            usuario=usuario_data,
+                            titulo=receita.titulo,
+                            descricao=receita.descricao,
+                            tempo_minutos=receita.tempo_minutos,
+                            porcoes=receita.porcoes,
+                            imagem_path=receita.imagem_path,
+                            ingredientes=ingredientes,
+                            categorias=categorias
+                        )
+        )
 
     return BuscaPaginada(
-        items=db_receitas,
+        items=receitas,
         total_itens=total_itens,
         total_paginas=total_paginas,
         pagina_atual=pagina,
