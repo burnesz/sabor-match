@@ -79,7 +79,7 @@ export default function NovaReceita() {
                 </div>
               </div>
 
-              {/* Ingredientes (Igual ao anterior) */}
+              {/* Ingredientes */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-2">Ingredientes</label>
                 <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex flex-col gap-4">
@@ -109,7 +109,7 @@ export default function NovaReceita() {
                       placeholder="Nome do ingrediente"
                       className="text-black flex-1 p-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
                     />
-                    <button type="button" onClick={handleAddClick} className="bg-purple-100 text-purple-600 p-3 rounded-xl hover:bg-purple-200 transition flex items-center justify-center min-w-[50px]"><FontAwesomeIcon icon={faPlus} /></button>
+                    <button type="button" onClick={handleAddClick} className="cursor-pointer bg-purple-100 text-purple-600 p-3 rounded-xl hover:bg-purple-200 transition flex items-center justify-center min-w-[50px]"><FontAwesomeIcon icon={faPlus} /></button>
                   </div>
                   {form.ingredientes.length > 0 ? (
                     <div className="flex flex-col gap-2 mt-2">
@@ -119,7 +119,7 @@ export default function NovaReceita() {
                             <span className="font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md text-sm">{item.quantidade} {item.unidade}</span>
                             <span>{item.nome}</span>
                           </div>
-                          <button type="button" onClick={() => removerIngrediente(index)} className="text-gray-400 hover:text-red-500 transition px-2"><FontAwesomeIcon icon={faTrash} size="sm" /></button>
+                          <button type="button" onClick={() => removerIngrediente(index)} className="cursor-pointer text-gray-400 hover:text-red-500 transition px-2"><FontAwesomeIcon icon={faTrash} size="sm" /></button>
                         </div>
                       ))}
                     </div>
